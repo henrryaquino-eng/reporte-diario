@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1f2937">
+<title>Reporte Diario de Mantenimiento V1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;color:#111827}
+header{background:#1f2937;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+header h1{font-size:20px;margin:0 0 5px}header small{opacity:.8}
+main{max-width:900px;margin:auto;padding:16px}.card{background:white;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #00000010}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(max-width:650px){.row{grid-template-columns:1fr}}
+label{font-weight:600;font-size:13px;display:block;margin-bottom:5px}input,select,textarea{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;font-size:15px}textarea{min-height:90px;resize:vertical}
+button{border:0;border-radius:9px;padding:11px 15px;font-weight:700;cursor:pointer;margin:4px}button.primary{background:#2563eb;color:white}button.success{background:#059669;color:white}button.warn{background:#d97706;color:white}button.danger{background:#dc2626;color:white}button.gray{background:#e5e7eb;color:#111827}
+.status{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#fef3c7;color:#92400e}.ok{background:#d1fae5;color:#065f46}.locked{background:#fee2e2;color:#991b1b}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.item{border:1px solid #e5e7eb;border-radius:12px;padding:13px;margin:10px 0}.item h3{margin:0 0 6px;font-size:16px}.muted{color:#6b7280;font-size:13px}
+.photo-preview{max-width:100%;max-height:260px;border-radius:10px;margin-top:8px}
+.notice{padding:11px;border-radius:9px;background:#eff6ff;color:#1e40af;margin:8px 0}
+.hidden{display:none!important}.checks{display:flex;align-items:center;gap:8px;margin:8px 0}.checks input{width:auto}
+</style>
+</head>
+<body>
+<header><h1>Reporte Diario de Mantenimiento</h1><small>V1 — prototipo offline</small></header>
+<main>
+<section class="card">
+<div class="toolbar"><div><b id="reportTitle">Reporte 20-08-2026 — Turno Día</b><div class="muted">Los datos se guardan localmente en este dispositivo.</div></div><span id="status" class="status">BORRADOR</span></div>
+<div class="notice">📴 Modo offline: puedes registrar información sin internet. La sincronización real con una base central se implementará en la siguiente etapa.</div>
+<div class="row">
+<div><label>Fecha</label><input id="date" type="date" value="2026-08-20"></div>
+<div><label>Turno</label><select id="shift"><option>Día</option><option>Noche</option></select></div>
+<div><label>Supervisor</label><input id="supervisor" value="Carlos Sullcaray Unocc."></div>
+</div>
+</section>
+
+<section class="card">
+<div class="toolbar"><h2 style="margin:0">Registros de equipos</h2><button class="primary" onclick="openForm()">＋ Agregar equipo</button></div>
+<div id="records"></div>
+</section>
+
+<section class="card">
+<h2>Flujo del reporte</h2>
+<div id="workflowText" class="muted"></div>
+<div id="actions"></div>
+</section>
+</main>
+
+<div id="modal" class="hidden" style="position:fixed;inset:0;background:#0008;z-index:10;overflow:auto;padding:15px">
+<div class="card" style="max-width:760px;margin:20px auto">
+<div class="toolbar"><h2 style="margin:0">Registrar equipo</h2><button class="gray" onclick="closeForm()">Cerrar</button></div>
+<div class="row">
+<div><label>Equipo</label><input id="fEquipo" placeholder="Ej. S7C 06"></div>
+<div><label>Horario</label><input id="fHora" placeholder="09:00 – 10:30"></div>
+<div><label>Demoras</label><input id="fDemora" placeholder="N.A. / Gestión de repuesto"></div>
+<div><label>Detención</label><select id="fDet"><option>PARADA</option><option>CORRECTIVO</option><option>INSPECCIÓN</option><option>MANTENIMIENTO</option></select></div>
+<div><label>Técnicos</label><input id="fTec" placeholder="Nombres de técnicos"></div>
+<div><label>Estado del equipo</label><select id="fEstado"><option>OPERATIVO</option><option>INOPERATIVO</option></select></div>
+</div>
+<label style="margin-top:12px">Actividad realizada</label><textarea id="fAct"></textarea>
+<label>Observaciones</label><textarea id="fObs" placeholder="N.A."></textarea>
+<div class="checks"><input id="hasPhoto" type="checkbox" onchange="togglePhoto()"><label for="hasPhoto" style="margin:0">Agregar fotografía (opcional)</label></div>
+<div id="photoBox" class="hidden">
+<label>Fotografía</label><input id="fPhoto" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)">
+<img id="preview" class="photo-preview hidden">
+<label style="margin-top:10px">Comentario de la fotografía <span style="color:#dc2626">*</span></label>
+<textarea id="fPhotoComment" placeholder="Describa qué se observa en la fotografía"></textarea>
+<div class="notice">Si agrega una fotografía, el comentario es obligatorio.</div>
+</div>
+<button class="primary" onclick="saveRecord()">Guardar registro</button>
+</div>
+</div>
+
+<script>
+const KEY="rpt-v1";
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
+date:"2026-08-20",shift:"Día",supervisor:"Carlos Sullcaray Unocc.",status:"BORRADOR",records:[]
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function render(){
+document.getElementById('date').value=data.date;document.getElementById('shift').value=data.shift;document.getElementById('supervisor').value=data.supervisor;
+document.getElementById('reportTitle').textContent=`Reporte ${data.date.split('-').reverse().join('-')} — Turno ${data.shift}`;
+let st=document.getElementById('status');st.textContent=data.status;st.className='status '+(data.status==="VALIDADO"||data.status==="GENERADO"?'ok':'')+(data.status==="CERRADO"?' locked':'');
+let box=document.getElementById('records');box.innerHTML='';
+if(!data.records.length) box.innerHTML='<div class="muted" style="padding:12px">No hay registros. Agrega el primer equipo.</div>';
+data.records.forEach((r,i)=>{
+let photo=r.photo?`<img src="${r.photo}" class="photo-preview"><div><b>Comentario foto:</b> ${esc(r.photoComment)}</div>`:'<div class="muted">Sin fotografía</div>';
+box.innerHTML+=`<div class="item"><h3>${esc(r.equipo)}</h3><div class="muted">${esc(r.hora)} · ${esc(r.det)} · ${esc(r.estado)}</div><p><b>Actividad:</b> ${esc(r.act)}</p><p><b>Demora:</b> ${esc(r.demora)}<br><b>Técnicos:</b> ${esc(r.tec)}<br><b>Obs.:</b> ${esc(r.obs)}</p>${photo}<button class="danger" onclick="removeRecord(${i})" ${data.status==="VALIDADO"||data.status==="GENERADO"?'disabled':''}>Eliminar</button></div>`;
+});
+let wt=document.getElementById('workflowText');
+wt.textContent=data.status==="BORRADOR"?"Registra y revisa los equipos.":data.status==="PENDIENTE DE VALIDACIÓN"?"El supervisor debe validar el reporte antes de generar el documento.":data.status==="VALIDADO"?"Reporte validado. Ya puede generarse el documento oficial.":"Reporte generado.";
+let a=document.getElementById('actions');a.innerHTML='';
+if(data.status==="BORRADOR"&&data.records.length) a.innerHTML+='<button class="warn" onclick="submitReport()">Enviar a validación</button>';
+if(data.status==="PENDIENTE DE VALIDACIÓN") a.innerHTML+='<button class="success" onclick="validateReport()">✅ Validar como supervisor</button><button class="warn" onclick="observeReport()">⚠ Devolver a corrección</button>';
+if(data.status==="VALIDADO") a.innerHTML+='<button class="primary" onclick="generateReport()">📄 Generar reporte</button>';
+if(data.status==="GENERADO") a.innerHTML+='<button class="gray" onclick="reopen()">Reabrir para corrección</button>';
+}
+function openForm(){if(data.status==="VALIDADO"||data.status==="GENERADO"){alert("El reporte está validado. El supervisor debe reabrirlo para modificarlo.");return}document.getElementById('modal').classList.remove('hidden')}
+function closeForm(){document.getElementById('modal').classList.add('hidden')}
+function togglePhoto(){document.getElementById('photoBox').classList.toggle('hidden',!document.getElementById('hasPhoto').checked)}
+function previewPhoto(e){let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{let p=document.getElementById('preview');p.src=rd.result;p.classList.remove('hidden')};rd.readAsDataURL(f)}
+function saveRecord(){
+let photo=document.getElementById('fPhoto').files[0], has=document.getElementById('hasPhoto').checked, comment=document.getElementById('fPhotoComment').value.trim();
+if(!document.getElementById('fEquipo').value.trim()||!document.getElementById('fAct').value.trim()){alert("Equipo y actividad son obligatorios.");return}
+if(has && (!photo||!comment)){alert("Si agrega una fotografía, debe adjuntar la foto y escribir un comentario.");return}
+let finish=(photoData)=>{data.records.push({equipo:v('fEquipo'),hora:v('fHora'),demora:v('fDemora')||"N.A.",det:v('fDet'),tec:v('fTec'),estado:v('fEstado'),act:v('fAct'),obs:v('fObs')||"N.A.",photo:photoData||"",photoComment:comment});save();closeForm();resetForm()};
+if(photo){let rd=new FileReader();rd.onload=()=>finish(rd.result);rd.readAsDataURL(photo)}else finish("");
+}
+function resetForm(){['fEquipo','fHora','fDemora','fTec','fAct','fObs','fPhotoComment'].forEach(id=>document.getElementById(id).value='');document.getElementById('hasPhoto').checked=false;togglePhoto();document.getElementById('fPhoto').value='';document.getElementById('preview').classList.add('hidden')}
+function v(id){return document.getElementById(id).value.trim()}
+function removeRecord(i){if(confirm("¿Eliminar este registro?")){data.records.splice(i,1);save()}}
+function submitReport(){data.status="PENDIENTE DE VALIDACIÓN";save()}
+function validateReport(){if(!data.records.length){alert("No hay registros.");return}data.status="VALIDADO";save()}
+function observeReport(){data.status="BORRADOR";save();alert("Reporte devuelto a corrección.")}
+function generateReport(){data.status="GENERADO";save();alert("V1: reporte validado y marcado como GENERADO. La exportación Excel/PDF se implementará en el siguiente módulo.");}
+function reopen(){data.status="BORRADOR";save()}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+document.getElementById('date').onchange=e=>{data.date=e.target.value;save()}
+document.getElementById('shift').onchange=e=>{data.shift=e.target.value;save()}
+document.getElementById('supervisor').onchange=e=>{data.supervisor=e.target.value;save()}
+render();
+</script>
+</body></html>

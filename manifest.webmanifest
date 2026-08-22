@@ -1,0 +1,10 @@
+{
+  "name": "Reporte Diario de Mantenimiento",
+  "short_name": "Reporte Diario",
+  "description": "Demo del sistema de reportes diarios de mantenimiento.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#1f2937",
+  "lang": "es"
+}
