@@ -2,122 +2,291 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f2937">
-<title>Reporte Diario de Mantenimiento V1</title>
+<title>Reporte Diario de Mantenimiento</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;color:#111827}
-header{background:#1f2937;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
-header h1{font-size:20px;margin:0 0 5px}header small{opacity:.8}
-main{max-width:900px;margin:auto;padding:16px}.card{background:white;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #00000010}
-.row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(max-width:650px){.row{grid-template-columns:1fr}}
-label{font-weight:600;font-size:13px;display:block;margin-bottom:5px}input,select,textarea{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;font-size:15px}textarea{min-height:90px;resize:vertical}
-button{border:0;border-radius:9px;padding:11px 15px;font-weight:700;cursor:pointer;margin:4px}button.primary{background:#2563eb;color:white}button.success{background:#059669;color:white}button.warn{background:#d97706;color:white}button.danger{background:#dc2626;color:white}button.gray{background:#e5e7eb;color:#111827}
-.status{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#fef3c7;color:#92400e}.ok{background:#d1fae5;color:#065f46}.locked{background:#fee2e2;color:#991b1b}
-.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
-.item{border:1px solid #e5e7eb;border-radius:12px;padding:13px;margin:10px 0}.item h3{margin:0 0 6px;font-size:16px}.muted{color:#6b7280;font-size:13px}
-.photo-preview{max-width:100%;max-height:260px;border-radius:10px;margin-top:8px}
-.notice{padding:11px;border-radius:9px;background:#eff6ff;color:#1e40af;margin:8px 0}
-.hidden{display:none!important}.checks{display:flex;align-items:center;gap:8px;margin:8px 0}.checks input{width:auto}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f4f6;color:#111827}
+header{background:#1f2937;color:#fff;padding:24px 18px 20px}
+header h1{margin:0;font-size:25px;line-height:1.15}
+header p{margin:8px 0 0;color:#d1d5db}
+main{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+h2{margin:0 0 16px;font-size:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-weight:700;font-size:15px;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:13px;font-size:16px;background:#fff;color:#111827}
+textarea{min-height:100px;resize:vertical}
+.full{grid-column:1/-1}
+button{border:0;border-radius:11px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.primary{background:#2563eb;color:#fff}
+.gray{background:#e5e7eb;color:#111827}
+.danger{background:#fee2e2;color:#991b1b}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.photoBox{margin-top:10px}
+.photoPreview{display:none;width:100%;max-height:360px;object-fit:contain;border-radius:12px;background:#f3f4f6;margin-top:12px}
+.notice{margin-top:8px;padding:12px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-weight:600}
+.required{color:#dc2626}
+.record{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-top:12px}
+.record h3{margin:0 0 8px}
+.record p{margin:5px 0}
+.record img{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f3f4f6}
+.small{font-size:13px;color:#6b7280}
+.empty{color:#6b7280;text-align:center;padding:18px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
 <body>
-<header><h1>Reporte Diario de Mantenimiento</h1><small>V1 — prototipo offline</small></header>
+<header>
+  <h1>Reporte Diario de Mantenimiento</h1>
+  <p>V1 — prototipo offline</p>
+</header>
+
 <main>
 <section class="card">
-<div class="toolbar"><div><b id="reportTitle">Reporte 20-08-2026 — Turno Día</b><div class="muted">Los datos se guardan localmente en este dispositivo.</div></div><span id="status" class="status">BORRADOR</span></div>
-<div class="notice">📴 Modo offline: puedes registrar información sin internet. La sincronización real con una base central se implementará en la siguiente etapa.</div>
-<div class="row">
-<div><label>Fecha</label><input id="date" type="date" value="2026-08-20"></div>
-<div><label>Turno</label><select id="shift"><option>Día</option><option>Noche</option></select></div>
-<div><label>Supervisor</label><input id="supervisor" value="Carlos Sullcaray Unocc."></div>
+<h2>Registrar equipo</h2>
+
+<div class="grid">
+  <div>
+    <label for="fEquipo">Nombre del equipo</label>
+    <input id="fEquipo" placeholder="Ej. Simba">
+  </div>
+
+  <div>
+    <label for="fCodigo">Código / identificación</label>
+    <input id="fCodigo" placeholder="Ej. S7C-7">
+  </div>
+
+  <div>
+    <label for="fUbicacion">Ubicación</label>
+    <input id="fUbicacion" placeholder="Ej. Nivel 420">
+  </div>
+
+  <div>
+    <label for="fTipo">Tipo de mantenimiento</label>
+    <select id="fTipo">
+      <option>PREVENTIVO</option>
+      <option>CORRECTIVO</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="fEstado">Estado del equipo</label>
+    <select id="fEstado">
+      <option>OPERATIVO</option>
+      <option>OPERATIVO CON OBSERVACIÓN</option>
+      <option>FUERA DE SERVICIO</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="fHora">Horario</label>
+    <input id="fHora" placeholder="09:00 – 10:30">
+  </div>
+
+  <div>
+    <label for="fDemora">Demora</label>
+    <input id="fDemora" placeholder="N.A. / Gestión de repuesto">
+  </div>
+
+  <div>
+    <label for="fDet">Detención</label>
+    <select id="fDet">
+      <option>PARADA</option>
+      <option>CORRECTIVO</option>
+      <option>NO APLICA</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="fTec">Técnicos</label>
+    <input id="fTec" placeholder="Nombres de técnicos">
+  </div>
+
+  <div class="full">
+    <label for="fActividad">Descripción de la actividad</label>
+    <textarea id="fActividad" placeholder="Describa la actividad realizada"></textarea>
+  </div>
+
+  <div class="full">
+    <label for="fAnomalia">Anomalía detectada</label>
+    <textarea id="fAnomalia" placeholder="Describa la anomalía detectada"></textarea>
+  </div>
+
+  <div class="full">
+    <label for="fObs">Observaciones</label>
+    <textarea id="fObs" placeholder="N.A."></textarea>
+  </div>
+
+  <div class="full photoBox">
+    <label for="fPhoto">Fotografía (opcional)</label>
+
+    <!-- IMPORTANTE: no usamos capture="environment".
+         En iPhone esto permite seleccionar una foto de la Fototeca
+         además de ofrecer las opciones disponibles del sistema. -->
+    <input id="fPhoto" type="file" accept="image/*" onchange="previewPhoto()">
+
+    <img id="preview" class="photoPreview" alt="Vista previa de la fotografía">
+
+    <label for="fPhotoComment" style="margin-top:12px">
+      Comentario de la fotografía <span class="required">*</span>
+    </label>
+    <textarea id="fPhotoComment" placeholder="Describa qué se observa en la fotografía"></textarea>
+
+    <div class="notice">
+      Si agrega una fotografía, el comentario es obligatorio.
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="primary" onclick="saveRecord()">Guardar registro</button>
+  <button class="gray" onclick="clearForm()">Limpiar</button>
 </div>
 </section>
 
 <section class="card">
-<div class="toolbar"><h2 style="margin:0">Registros de equipos</h2><button class="primary" onclick="openForm()">＋ Agregar equipo</button></div>
+<h2>Registros de equipos</h2>
 <div id="records"></div>
-</section>
-
-<section class="card">
-<h2>Flujo del reporte</h2>
-<div id="workflowText" class="muted"></div>
-<div id="actions"></div>
 </section>
 </main>
 
-<div id="modal" class="hidden" style="position:fixed;inset:0;background:#0008;z-index:10;overflow:auto;padding:15px">
-<div class="card" style="max-width:760px;margin:20px auto">
-<div class="toolbar"><h2 style="margin:0">Registrar equipo</h2><button class="gray" onclick="closeForm()">Cerrar</button></div>
-<div class="row">
-<div><label>Equipo</label><input id="fEquipo" placeholder="Ej. S7C 06"></div>
-<div><label>Horario</label><input id="fHora" placeholder="09:00 – 10:30"></div>
-<div><label>Demoras</label><input id="fDemora" placeholder="N.A. / Gestión de repuesto"></div>
-<div><label>Detención</label><select id="fDet"><option>PARADA</option><option>CORRECTIVO</option><option>INSPECCIÓN</option><option>MANTENIMIENTO</option></select></div>
-<div><label>Técnicos</label><input id="fTec" placeholder="Nombres de técnicos"></div>
-<div><label>Estado del equipo</label><select id="fEstado"><option>OPERATIVO</option><option>INOPERATIVO</option></select></div>
-</div>
-<label style="margin-top:12px">Actividad realizada</label><textarea id="fAct"></textarea>
-<label>Observaciones</label><textarea id="fObs" placeholder="N.A."></textarea>
-<div class="checks"><input id="hasPhoto" type="checkbox" onchange="togglePhoto()"><label for="hasPhoto" style="margin:0">Agregar fotografía (opcional)</label></div>
-<div id="photoBox" class="hidden">
-<label>Fotografía</label><input id="fPhoto" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)">
-<img id="preview" class="photo-preview hidden">
-<label style="margin-top:10px">Comentario de la fotografía <span style="color:#dc2626">*</span></label>
-<textarea id="fPhotoComment" placeholder="Describa qué se observa en la fotografía"></textarea>
-<div class="notice">Si agrega una fotografía, el comentario es obligatorio.</div>
-</div>
-<button class="primary" onclick="saveRecord()">Guardar registro</button>
-</div>
-</div>
-
 <script>
-const KEY="rpt-v1";
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
-date:"2026-08-20",shift:"Día",supervisor:"Carlos Sullcaray Unocc.",status:"BORRADOR",records:[]
-};
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-function render(){
-document.getElementById('date').value=data.date;document.getElementById('shift').value=data.shift;document.getElementById('supervisor').value=data.supervisor;
-document.getElementById('reportTitle').textContent=`Reporte ${data.date.split('-').reverse().join('-')} — Turno ${data.shift}`;
-let st=document.getElementById('status');st.textContent=data.status;st.className='status '+(data.status==="VALIDADO"||data.status==="GENERADO"?'ok':'')+(data.status==="CERRADO"?' locked':'');
-let box=document.getElementById('records');box.innerHTML='';
-if(!data.records.length) box.innerHTML='<div class="muted" style="padding:12px">No hay registros. Agrega el primer equipo.</div>';
-data.records.forEach((r,i)=>{
-let photo=r.photo?`<img src="${r.photo}" class="photo-preview"><div><b>Comentario foto:</b> ${esc(r.photoComment)}</div>`:'<div class="muted">Sin fotografía</div>';
-box.innerHTML+=`<div class="item"><h3>${esc(r.equipo)}</h3><div class="muted">${esc(r.hora)} · ${esc(r.det)} · ${esc(r.estado)}</div><p><b>Actividad:</b> ${esc(r.act)}</p><p><b>Demora:</b> ${esc(r.demora)}<br><b>Técnicos:</b> ${esc(r.tec)}<br><b>Obs.:</b> ${esc(r.obs)}</p>${photo}<button class="danger" onclick="removeRecord(${i})" ${data.status==="VALIDADO"||data.status==="GENERADO"?'disabled':''}>Eliminar</button></div>`;
-});
-let wt=document.getElementById('workflowText');
-wt.textContent=data.status==="BORRADOR"?"Registra y revisa los equipos.":data.status==="PENDIENTE DE VALIDACIÓN"?"El supervisor debe validar el reporte antes de generar el documento.":data.status==="VALIDADO"?"Reporte validado. Ya puede generarse el documento oficial.":"Reporte generado.";
-let a=document.getElementById('actions');a.innerHTML='';
-if(data.status==="BORRADOR"&&data.records.length) a.innerHTML+='<button class="warn" onclick="submitReport()">Enviar a validación</button>';
-if(data.status==="PENDIENTE DE VALIDACIÓN") a.innerHTML+='<button class="success" onclick="validateReport()">✅ Validar como supervisor</button><button class="warn" onclick="observeReport()">⚠ Devolver a corrección</button>';
-if(data.status==="VALIDADO") a.innerHTML+='<button class="primary" onclick="generateReport()">📄 Generar reporte</button>';
-if(data.status==="GENERADO") a.innerHTML+='<button class="gray" onclick="reopen()">Reabrir para corrección</button>';
+const KEY = "reporte-diario-v1";
+let data = JSON.parse(localStorage.getItem(KEY) || "null") || {records:[]};
+
+function previewPhoto(){
+  const input=document.getElementById("fPhoto");
+  const preview=document.getElementById("preview");
+  const file=input.files && input.files[0];
+
+  if(!file){
+    preview.src="";
+    preview.style.display="none";
+    return;
+  }
+
+  if(!file.type.startsWith("image/")){
+    alert("Seleccione una imagen.");
+    input.value="";
+    preview.src="";
+    preview.style.display="none";
+    return;
+  }
+
+  const reader=new FileReader();
+  reader.onload=()=>{preview.src=reader.result;preview.style.display="block"};
+  reader.readAsDataURL(file);
 }
-function openForm(){if(data.status==="VALIDADO"||data.status==="GENERADO"){alert("El reporte está validado. El supervisor debe reabrirlo para modificarlo.");return}document.getElementById('modal').classList.remove('hidden')}
-function closeForm(){document.getElementById('modal').classList.add('hidden')}
-function togglePhoto(){document.getElementById('photoBox').classList.toggle('hidden',!document.getElementById('hasPhoto').checked)}
-function previewPhoto(e){let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{let p=document.getElementById('preview');p.src=rd.result;p.classList.remove('hidden')};rd.readAsDataURL(f)}
-function saveRecord(){
-let photo=document.getElementById('fPhoto').files[0], has=document.getElementById('hasPhoto').checked, comment=document.getElementById('fPhotoComment').value.trim();
-if(!document.getElementById('fEquipo').value.trim()||!document.getElementById('fAct').value.trim()){alert("Equipo y actividad son obligatorios.");return}
-if(has && (!photo||!comment)){alert("Si agrega una fotografía, debe adjuntar la foto y escribir un comentario.");return}
-let finish=(photoData)=>{data.records.push({equipo:v('fEquipo'),hora:v('fHora'),demora:v('fDemora')||"N.A.",det:v('fDet'),tec:v('fTec'),estado:v('fEstado'),act:v('fAct'),obs:v('fObs')||"N.A.",photo:photoData||"",photoComment:comment});save();closeForm();resetForm()};
-if(photo){let rd=new FileReader();rd.onload=()=>finish(rd.result);rd.readAsDataURL(photo)}else finish("");
+
+function getPhotoData(){
+  return new Promise((resolve,reject)=>{
+    const input=document.getElementById("fPhoto");
+    const file=input.files && input.files[0];
+    if(!file){resolve("");return}
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
 }
-function resetForm(){['fEquipo','fHora','fDemora','fTec','fAct','fObs','fPhotoComment'].forEach(id=>document.getElementById(id).value='');document.getElementById('hasPhoto').checked=false;togglePhoto();document.getElementById('fPhoto').value='';document.getElementById('preview').classList.add('hidden')}
-function v(id){return document.getElementById(id).value.trim()}
-function removeRecord(i){if(confirm("¿Eliminar este registro?")){data.records.splice(i,1);save()}}
-function submitReport(){data.status="PENDIENTE DE VALIDACIÓN";save()}
-function validateReport(){if(!data.records.length){alert("No hay registros.");return}data.status="VALIDADO";save()}
-function observeReport(){data.status="BORRADOR";save();alert("Reporte devuelto a corrección.")}
-function generateReport(){data.status="GENERADO";save();alert("V1: reporte validado y marcado como GENERADO. La exportación Excel/PDF se implementará en el siguiente módulo.");}
-function reopen(){data.status="BORRADOR";save()}
-function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-document.getElementById('date').onchange=e=>{data.date=e.target.value;save()}
-document.getElementById('shift').onchange=e=>{data.shift=e.target.value;save()}
-document.getElementById('supervisor').onchange=e=>{data.supervisor=e.target.value;save()}
-render();
+
+async function saveRecord(){
+  const equipo=document.getElementById("fEquipo").value.trim();
+  const codigo=document.getElementById("fCodigo").value.trim();
+  const actividad=document.getElementById("fActividad").value.trim();
+  const photoComment=document.getElementById("fPhotoComment").value.trim();
+  const photo=document.getElementById("fPhoto").files[0];
+
+  if(!equipo){alert("Ingrese el nombre del equipo.");return}
+  if(!codigo){alert("Ingrese el código o identificación.");return}
+  if(!actividad){alert("Ingrese la descripción de la actividad.");return}
+  if(photo && !photoComment){
+    alert("Si agrega una fotografía, el comentario de la fotografía es obligatorio.");
+    document.getElementById("fPhotoComment").focus();
+    return;
+  }
+
+  const record={
+    id:Date.now(),
+    fecha:new Date().toLocaleString("es-PE"),
+    equipo,
+    codigo,
+    ubicacion:document.getElementById("fUbicacion").value.trim(),
+    tipo:document.getElementById("fTipo").value,
+    estado:document.getElementById("fEstado").value,
+    hora:document.getElementById("fHora").value.trim(),
+    demora:document.getElementById("fDemora").value.trim(),
+    detencion:document.getElementById("fDet").value,
+    tecnicos:document.getElementById("fTec").value.trim(),
+    actividad,
+    anomalia:document.getElementById("fAnomalia").value.trim(),
+    observaciones:document.getElementById("fObs").value.trim() || "N.A.",
+    photo:await getPhotoData(),
+    photoComment
+  };
+
+  data.records.unshift(record);
+  localStorage.setItem(KEY,JSON.stringify(data));
+  renderRecords();
+  clearForm();
+  alert("Registro guardado correctamente.");
+}
+
+function clearForm(){
+  ["fEquipo","fCodigo","fUbicacion","fHora","fDemora","fTec","fActividad","fAnomalia","fObs","fPhotoComment"].forEach(id=>{
+    document.getElementById(id).value="";
+  });
+  document.getElementById("fTipo").value="PREVENTIVO";
+  document.getElementById("fEstado").value="OPERATIVO";
+  document.getElementById("fDet").value="PARADA";
+  document.getElementById("fPhoto").value="";
+  document.getElementById("preview").src="";
+  document.getElementById("preview").style.display="none";
+}
+
+function deleteRecord(id){
+  if(!confirm("¿Eliminar este registro?")) return;
+  data.records=data.records.filter(r=>r.id!==id);
+  localStorage.setItem(KEY,JSON.stringify(data));
+  renderRecords();
+}
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function renderRecords(){
+  const box=document.getElementById("records");
+  if(!data.records.length){
+    box.innerHTML='<div class="empty">No hay registros todavía.</div>';
+    return;
+  }
+
+  box.innerHTML=data.records.map(r=>`
+    <article class="record">
+      <h3>${esc(r.codigo)} — ${esc(r.equipo)}</h3>
+      <p><b>Fecha:</b> ${esc(r.fecha)}</p>
+      <p><b>Ubicación:</b> ${esc(r.ubicacion || "N.A.")}</p>
+      <p><b>Tipo:</b> ${esc(r.tipo)} &nbsp; <b>Estado:</b> ${esc(r.estado)}</p>
+      <p><b>Actividad:</b> ${esc(r.actividad)}</p>
+      <p><b>Anomalía:</b> ${esc(r.anomalia || "N.A.")}</p>
+      <p><b>Demora:</b> ${esc(r.demora || "N.A.")}</p>
+      <p><b>Técnicos:</b> ${esc(r.tecnicos || "N.A.")}</p>
+      <p><b>Obs.:</b> ${esc(r.observaciones)}</p>
+      ${r.photo ? `<img src="${r.photo}" alt="Fotografía del registro">` : ""}
+      ${r.photo ? `<p><b>Comentario de la fotografía:</b> ${esc(r.photoComment)}</p>` : ""}
+      <div class="actions">
+        <button class="danger" onclick="deleteRecord(${r.id})">Eliminar</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+renderRecords();
 </script>
-</body></html>
+</body>
+</html>
