@@ -34,6 +34,21 @@ button{border:0;border-radius:11px;padding:14px 18px;font-size:16px;font-weight:
 .record img{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f3f4f6}
 .small{font-size:13px;color:#6b7280}
 .empty{color:#6b7280;text-align:center;padding:18px}
+
+.annotateBtn{display:none;margin-top:12px;background:#111827;color:#fff;width:100%}
+.annotatedLabel{display:none;margin-top:10px;padding:9px 12px;border-radius:10px;background:#ecfdf5;color:#047857;font-weight:700}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;padding:12px;overflow:auto}
+.modalBox{max-width:1000px;margin:auto;background:#fff;border-radius:16px;padding:12px;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+.modalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.modalHead h3{margin:0;font-size:19px}
+.toolBar{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px;flex-wrap:wrap}
+.toolBar button{padding:10px 12px;font-size:14px;background:#e5e7eb;color:#111827}
+.toolBar button.active{background:#2563eb;color:#fff}
+.canvasWrap{flex:1;display:flex;align-items:center;justify-content:center;background:#111827;border-radius:12px;min-height:55vh;overflow:auto;padding:6px}
+#annotCanvas{display:block;max-width:100%;max-height:70vh;touch-action:none;background:#fff}
+.modalActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.modalActions button{flex:1;min-width:120px}
+.help{font-size:13px;color:#4b5563;margin:8px 2px 0}
 @media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
@@ -128,6 +143,8 @@ button{border:0;border-radius:11px;padding:14px 18px;font-size:16px;font-weight:
     <input id="fPhoto" type="file" accept="image/*" onchange="previewPhoto()">
 
     <img id="preview" class="photoPreview" alt="Vista previa de la fotografía">
+    <button id="annotateBtn" type="button" class="annotateBtn" onclick="openAnnotator()">✏️ Anotar / marcar fotografía</button>
+    <div id="annotatedLabel" class="annotatedLabel">✓ Fotografía anotada lista para guardar</div>
 
     <label for="fPhotoComment" style="margin-top:12px">
       Comentario de la fotografía <span class="required">*</span>
@@ -152,14 +169,46 @@ button{border:0;border-radius:11px;padding:14px 18px;font-size:16px;font-weight:
 </section>
 </main>
 
+<div id="annotModal" class="modal" aria-hidden="true">
+  <div class="modalBox">
+    <div class="modalHead">
+      <h3>✏️ Anotar fotografía</h3>
+      <button type="button" class="gray" onclick="closeAnnotator()">Cerrar</button>
+    </div>
+    <div class="toolBar">
+      <button type="button" data-tool="circle" onclick="setTool('circle')">⭕ Círculo</button>
+      <button type="button" data-tool="arrow" onclick="setTool('arrow')">➡️ Flecha</button>
+      <button type="button" data-tool="rect" onclick="setTool('rect')">▭ Recuadro</button>
+      <button type="button" data-tool="text" onclick="setTool('text')">T Texto</button>
+      <button type="button" onclick="undoAnnotation()">↩️ Deshacer</button>
+      <button type="button" onclick="clearAnnotations()">🗑️ Limpiar marcas</button>
+    </div>
+    <div class="canvasWrap"><canvas id="annotCanvas"></canvas></div>
+    <div class="help">Selecciona una herramienta y toca/arrastra sobre la imagen. Para texto, toca el punto donde quieres colocarlo.</div>
+    <div class="modalActions">
+      <button type="button" class="gray" onclick="closeAnnotator()">Cancelar</button>
+      <button type="button" class="primary" onclick="saveAnnotation()">✓ Guardar anotación</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const KEY = "reporte-diario-v1";
 let data = JSON.parse(localStorage.getItem(KEY) || "null") || {records:[]};
+let annotatedPhotoData = "";
+let annotImage = new Image();
+let annotations = [];
+let currentTool = "circle";
+let drawStart = null;
+let isDrawing = false;
 
 function previewPhoto(){
   const input=document.getElementById("fPhoto");
   const preview=document.getElementById("preview");
   const file=input.files && input.files[0];
+  annotatedPhotoData="";
+  document.getElementById("annotateBtn").style.display="none";
+  document.getElementById("annotatedLabel").style.display="none";
 
   if(!file){
     preview.src="";
@@ -176,12 +225,17 @@ function previewPhoto(){
   }
 
   const reader=new FileReader();
-  reader.onload=()=>{preview.src=reader.result;preview.style.display="block"};
+  reader.onload=()=>{
+    preview.src=reader.result;
+    preview.style.display="block";
+    document.getElementById("annotateBtn").style.display="block";
+  };
   reader.readAsDataURL(file);
 }
 
 function getPhotoData(){
   return new Promise((resolve,reject)=>{
+    if(annotatedPhotoData){resolve(annotatedPhotoData);return}
     const input=document.getElementById("fPhoto");
     const file=input.files && input.files[0];
     if(!file){resolve("");return}
@@ -190,6 +244,131 @@ function getPhotoData(){
     reader.onerror=reject;
     reader.readAsDataURL(file);
   });
+}
+
+function openAnnotator(){
+  const src=annotatedPhotoData || document.getElementById("preview").src;
+  if(!src){alert("Primero seleccione una fotografía.");return}
+  const modal=document.getElementById("annotModal");
+  modal.style.display="block";
+  modal.setAttribute("aria-hidden","false");
+  annotations=[];
+  drawStart=null;
+  isDrawing=false;
+  annotImage=new Image();
+  annotImage.onload=()=>{
+    const canvas=document.getElementById("annotCanvas");
+    const maxW=Math.min(1200, window.innerWidth-36);
+    const maxH=Math.max(300, window.innerHeight*0.68);
+    const scale=Math.min(maxW/annotImage.naturalWidth,maxH/annotImage.naturalHeight,1);
+    canvas.width=Math.round(annotImage.naturalWidth*scale);
+    canvas.height=Math.round(annotImage.naturalHeight*scale);
+    renderCanvas();
+  };
+  annotImage.src=src;
+  setTool("circle");
+}
+
+function closeAnnotator(){
+  const modal=document.getElementById("annotModal");
+  modal.style.display="none";
+  modal.setAttribute("aria-hidden","true");
+  drawStart=null;
+  isDrawing=false;
+}
+
+function setTool(tool){
+  currentTool=tool;
+  document.querySelectorAll(".toolBar [data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===tool));
+}
+
+function canvasPoint(e){
+  const c=document.getElementById("annotCanvas");
+  const r=c.getBoundingClientRect();
+  const sx=c.width/r.width, sy=c.height/r.height;
+  return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
+}
+
+function renderCanvas(temp){
+  const c=document.getElementById("annotCanvas");
+  if(!c.width || !c.height || !annotImage.naturalWidth)return;
+  const ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.drawImage(annotImage,0,0,c.width,c.height);
+  annotations.forEach(a=>drawAnnotation(ctx,a));
+  if(temp)drawAnnotation(ctx,temp);
+}
+
+function drawAnnotation(ctx,a){
+  ctx.save();
+  ctx.strokeStyle="#dc2626";
+  ctx.fillStyle="#dc2626";
+  ctx.lineWidth=Math.max(4,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/180));
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  if(a.type==="circle"){
+    const rx=Math.abs(a.x2-a.x1)/2, ry=Math.abs(a.y2-a.y1)/2;
+    const cx=(a.x1+a.x2)/2, cy=(a.y1+a.y2)/2;
+    ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,2),Math.max(ry,2),0,0,Math.PI*2);ctx.stroke();
+  }else if(a.type==="rect"){
+    ctx.strokeRect(a.x1,a.y1,a.x2-a.x1,a.y2-a.y1);
+  }else if(a.type==="arrow"){
+    const dx=a.x2-a.x1, dy=a.y2-a.y1, len=Math.hypot(dx,dy)||1;
+    const ux=dx/len, uy=dy/len, size=Math.max(12,ctx.lineWidth*4);
+    ctx.beginPath();ctx.moveTo(a.x1,a.y1);ctx.lineTo(a.x2,a.y2);ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(a.x2,a.y2);ctx.lineTo(a.x2-ux*size-uy*size*.65,a.y2-uy*size+ux*size*.65);
+    ctx.lineTo(a.x2-ux*size+uy*size*.65,a.y2-uy*size-ux*size*.65);ctx.closePath();ctx.fill();
+  }else if(a.type==="text"){
+    ctx.font=`700 ${Math.max(20,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/22))}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
+    ctx.lineWidth=6;ctx.strokeStyle="white";ctx.strokeText(a.text,a.x,a.y);ctx.fillStyle="#dc2626";ctx.fillText(a.text,a.x,a.y);
+  }
+  ctx.restore();
+}
+
+function pointerDown(e){
+  e.preventDefault();
+  const p=canvasPoint(e);
+  if(currentTool==="text"){
+    const text=prompt("Texto para marcar la fotografía:");
+    if(text && text.trim()){
+      annotations.push({type:"text",x:p.x,y:p.y,text:text.trim()});
+      renderCanvas();
+    }
+    return;
+  }
+  drawStart=p;isDrawing=true;
+}
+
+function pointerMove(e){
+  if(!isDrawing)return;
+  e.preventDefault();
+  const p=canvasPoint(e);
+  renderCanvas({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y});
+}
+
+function pointerUp(e){
+  if(!isDrawing)return;
+  e.preventDefault();
+  const p=canvasPoint(e);
+  if(Math.hypot(p.x-drawStart.x,p.y-drawStart.y)>6){
+    annotations.push({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y});
+  }
+  drawStart=null;isDrawing=false;renderCanvas();
+}
+
+function undoAnnotation(){annotations.pop();renderCanvas()}
+function clearAnnotations(){if(annotations.length && confirm("¿Eliminar todas las marcas?")){annotations=[];renderCanvas()}}
+
+function saveAnnotation(){
+  const c=document.getElementById("annotCanvas");
+  if(!c.width)return;
+  renderCanvas();
+  annotatedPhotoData=c.toDataURL("image/jpeg",0.9);
+  document.getElementById("preview").src=annotatedPhotoData;
+  document.getElementById("preview").style.display="block";
+  document.getElementById("annotatedLabel").style.display="block";
+  closeAnnotator();
 }
 
 async function saveRecord(){
@@ -244,6 +423,9 @@ function clearForm(){
   document.getElementById("fPhoto").value="";
   document.getElementById("preview").src="";
   document.getElementById("preview").style.display="none";
+  annotatedPhotoData="";
+  document.getElementById("annotateBtn").style.display="none";
+  document.getElementById("annotatedLabel").style.display="none";
 }
 
 function deleteRecord(id){
@@ -287,6 +469,11 @@ function renderRecords(){
 }
 
 renderRecords();
+const annotCanvas=document.getElementById("annotCanvas");
+annotCanvas.addEventListener("pointerdown",pointerDown);
+annotCanvas.addEventListener("pointermove",pointerMove);
+annotCanvas.addEventListener("pointerup",pointerUp);
+annotCanvas.addEventListener("pointercancel",pointerUp);
 </script>
 </body>
 </html>
