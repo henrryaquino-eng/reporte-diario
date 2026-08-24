@@ -1,479 +1,177 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f2937">
-<title>Reporte Diario de Mantenimiento</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b57d0">
+<title>Reporte Diario</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f4f6;color:#111827}
-header{background:#1f2937;color:#fff;padding:24px 18px 20px}
-header h1{margin:0;font-size:25px;line-height:1.15}
-header p{margin:8px 0 0;color:#d1d5db}
-main{max-width:900px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-h2{margin:0 0 16px;font-size:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-label{display:block;font-weight:700;font-size:15px;margin-bottom:6px}
-input,select,textarea{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:13px;font-size:16px;background:#fff;color:#111827}
-textarea{min-height:100px;resize:vertical}
-.full{grid-column:1/-1}
-button{border:0;border-radius:11px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer}
-.primary{background:#2563eb;color:#fff}
-.gray{background:#e5e7eb;color:#111827}
-.danger{background:#fee2e2;color:#991b1b}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.photoBox{margin-top:10px}
-.photoPreview{display:none;width:100%;max-height:360px;object-fit:contain;border-radius:12px;background:#f3f4f6;margin-top:12px}
-.notice{margin-top:8px;padding:12px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-weight:600}
-.required{color:#dc2626}
-.record{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-top:12px}
-.record h3{margin:0 0 8px}
-.record p{margin:5px 0}
-.record img{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f3f4f6}
-.small{font-size:13px;color:#6b7280}
-.empty{color:#6b7280;text-align:center;padding:18px}
-
-.annotateBtn{display:none;margin-top:12px;background:#111827;color:#fff;width:100%}
-.annotatedLabel{display:none;margin-top:10px;padding:9px 12px;border-radius:10px;background:#ecfdf5;color:#047857;font-weight:700}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;padding:12px;overflow:auto}
-.modalBox{max-width:1000px;margin:auto;background:#fff;border-radius:16px;padding:12px;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-.modalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.modalHead h3{margin:0;font-size:19px}
-.toolBar{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px;flex-wrap:wrap}
-.toolBar button{padding:10px 12px;font-size:14px;background:#e5e7eb;color:#111827}
-.toolBar button.active{background:#2563eb;color:#fff}
-.canvasWrap{flex:1;display:flex;align-items:center;justify-content:center;background:#111827;border-radius:12px;min-height:55vh;overflow:auto;padding:6px}
-#annotCanvas{display:block;max-width:100%;max-height:70vh;touch-action:none;background:#fff}
-.modalActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.modalActions button{flex:1;min-width:120px}
-.help{font-size:13px;color:#4b5563;margin:8px 2px 0}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#18212b}
+header{background:#0b57d0;color:white;padding:18px 16px 16px;position:sticky;top:0;z-index:5}h1{margin:0;font-size:22px}header p{margin:4px 0 0;opacity:.9;font-size:13px}
+main{max-width:760px;margin:auto;padding:14px}.card{background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px #00000012}
+label{display:block;font-weight:650;font-size:14px;margin:0 0 7px}input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd2d9;border-radius:10px;background:white;color:#18212b}
+input:focus,select:focus,textarea:focus{outline:2px solid #8ab4f8;border-color:#0b57d0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:13px}.full{grid-column:1/-1}
+.row{display:flex;gap:8px}.row>*{flex:1}.small{font-size:12px;color:#68727d;margin-top:5px}
+button{border:0;border-radius:10px;padding:12px 15px;font-weight:700;cursor:pointer}.primary{background:#0b57d0;color:#fff}.secondary{background:#e8eef8;color:#174ea6}.danger{background:#fde8e7;color:#b3261e}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.photo-preview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.photo-box{border:1px solid #d7dce1;border-radius:10px;padding:8px}.photo-box img{width:100%;height:180px;object-fit:contain;background:#f0f2f4;border-radius:7px}.photo-box textarea{margin-top:7px;min-height:70px}
+.record{border-top:1px solid #e4e7ea;padding:12px 0}.record:first-child{border-top:0}.record-title{font-weight:750}.badge{display:inline-block;background:#e8f0fe;color:#174ea6;padding:4px 8px;border-radius:20px;font-size:12px;margin-top:5px}
+#msg{position:fixed;left:14px;right:14px;bottom:14px;background:#202124;color:white;padding:12px 14px;border-radius:10px;display:none;z-index:20}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.photo-preview{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Reporte Diario de Mantenimiento</h1>
-  <p>V1 — prototipo offline</p>
-</header>
-
+<header><h1>Reporte Diario</h1><p>Registro de mantenimiento de equipos</p></header>
 <main>
+<form id="reportForm">
 <section class="card">
-<h2>Registrar equipo</h2>
-
+<h2>Datos del reporte</h2>
 <div class="grid">
-  <div>
-    <label for="fEquipo">Nombre del equipo</label>
-    <input id="fEquipo" placeholder="Ej. Simba">
-  </div>
-
-  <div>
-    <label for="fCodigo">Código / identificación</label>
-    <input id="fCodigo" placeholder="Ej. S7C-7">
-  </div>
-
-  <div>
-    <label for="fUbicacion">Ubicación</label>
-    <input id="fUbicacion" placeholder="Ej. Nivel 420">
-  </div>
-
-  <div>
-    <label for="fTipo">Tipo de mantenimiento</label>
-    <select id="fTipo">
-      <option>PREVENTIVO</option>
-      <option>CORRECTIVO</option>
-    </select>
-  </div>
-
-  <div>
-    <label for="fEstado">Estado del equipo</label>
-    <select id="fEstado">
-      <option>OPERATIVO</option>
-      <option>OPERATIVO CON OBSERVACIÓN</option>
-      <option>FUERA DE SERVICIO</option>
-    </select>
-  </div>
-
-  <div>
-    <label for="fHora">Horario</label>
-    <input id="fHora" placeholder="09:00 – 10:30">
-  </div>
-
-  <div>
-    <label for="fDemora">Demora</label>
-    <input id="fDemora" placeholder="N.A. / Gestión de repuesto">
-  </div>
-
-  <div>
-    <label for="fDet">Detención</label>
-    <select id="fDet">
-      <option>PARADA</option>
-      <option>CORRECTIVO</option>
-      <option>NO APLICA</option>
-    </select>
-  </div>
-
-  <div>
-    <label for="fTec">Técnicos</label>
-    <input id="fTec" placeholder="Nombres de técnicos">
-  </div>
-
-  <div class="full">
-    <label for="fActividad">Descripción de la actividad</label>
-    <textarea id="fActividad" placeholder="Describa la actividad realizada"></textarea>
-  </div>
-
-  <div class="full">
-    <label for="fAnomalia">Anomalía detectada</label>
-    <textarea id="fAnomalia" placeholder="Describa la anomalía detectada"></textarea>
-  </div>
-
-  <div class="full">
-    <label for="fObs">Observaciones</label>
-    <textarea id="fObs" placeholder="N.A."></textarea>
-  </div>
-
-  <div class="full photoBox">
-    <label for="fPhoto">Fotografía (opcional)</label>
-
-    <!-- IMPORTANTE: no usamos capture="environment".
-         En iPhone esto permite seleccionar una foto de la Fototeca
-         además de ofrecer las opciones disponibles del sistema. -->
-    <input id="fPhoto" type="file" accept="image/*" onchange="previewPhoto()">
-
-    <img id="preview" class="photoPreview" alt="Vista previa de la fotografía">
-    <button id="annotateBtn" type="button" class="annotateBtn" onclick="openAnnotator()">✏️ Anotar / marcar fotografía</button>
-    <div id="annotatedLabel" class="annotatedLabel">✓ Fotografía anotada lista para guardar</div>
-
-    <label for="fPhotoComment" style="margin-top:12px">
-      Comentario de la fotografía <span class="required">*</span>
-    </label>
-    <textarea id="fPhotoComment" placeholder="Describa qué se observa en la fotografía"></textarea>
-
-    <div class="notice">
-      Si agrega una fotografía, el comentario es obligatorio.
-    </div>
-  </div>
+<div class="field">
+<label for="equipment">Código de equipo</label>
+<select id="equipment" required>
+<option value="">Seleccione un equipo</option>
+</select>
+<div class="small">Si no aparece, use “Agregar código”.</div>
 </div>
-
-<div class="actions">
-  <button class="primary" onclick="saveRecord()">Guardar registro</button>
-  <button class="gray" onclick="clearForm()">Limpiar</button>
+<div class="field">
+<label>&nbsp;</label><button type="button" class="secondary" id="addCode">Agregar código</button>
+</div>
+<div class="field">
+<label for="date">Fecha y hora</label>
+<input id="date" type="datetime-local" required>
+</div>
+<div class="field">
+<label for="maintenance">Tipo de mantenimiento</label>
+<select id="maintenance" required>
+<option value="">Seleccione</option><option>Preventivo</option><option>Correctivo</option><option>Inspección</option><option>Emergencia</option>
+</select>
+</div>
+<div class="field">
+<label for="source">Fuente</label>
+<input id="source" placeholder="Ej.: inspección en PM">
+</div>
+<div class="field">
+<label for="status">Estado del equipo</label>
+<select id="status" required>
+<option value="">Seleccione</option><option>Operativo</option><option>Inoperativo</option><option>Parada</option>
+</select>
+</div>
+<div class="field full">
+<label for="activity">Descripción / actividad realizada</label>
+<textarea id="activity" rows="4" placeholder="Describa brevemente el trabajo realizado o la observación"></textarea>
+</div>
+<div class="field">
+<label for="technicians">Técnicos</label>
+<input id="technicians" placeholder="Nombres">
+</div>
+<div class="field">
+<label for="supervisor">Supervisor</label>
+<input id="supervisor" placeholder="Nombre del supervisor">
+</div>
 </div>
 </section>
 
 <section class="card">
-<h2>Registros de equipos</h2>
-<div id="records"></div>
+<h2>Fotografías</h2>
+<label for="photos">Seleccionar desde galería</label>
+<input id="photos" type="file" accept="image/*" multiple>
+<div class="small">Máximo 2 fotografías. Si agrega una fotografía, el comentario de cada fotografía es obligatorio.</div>
+<div id="photoPreview" class="photo-preview"></div>
+</section>
+
+<section class="card">
+<div class="toolbar">
+<button class="primary" type="submit">Guardar reporte</button>
+<button class="secondary" type="button" id="clear">Limpiar</button>
+</div>
+</section>
+</form>
+
+<section class="card">
+<h2>Registros guardados</h2>
+<div id="records"><div class="small">No hay registros todavía.</div></div>
 </section>
 </main>
-
-<div id="annotModal" class="modal" aria-hidden="true">
-  <div class="modalBox">
-    <div class="modalHead">
-      <h3>✏️ Anotar fotografía</h3>
-      <button type="button" class="gray" onclick="closeAnnotator()">Cerrar</button>
-    </div>
-    <div class="toolBar">
-      <button type="button" data-tool="circle" onclick="setTool('circle')">⭕ Círculo</button>
-      <button type="button" data-tool="arrow" onclick="setTool('arrow')">➡️ Flecha</button>
-      <button type="button" data-tool="rect" onclick="setTool('rect')">▭ Recuadro</button>
-      <button type="button" data-tool="text" onclick="setTool('text')">T Texto</button>
-      <button type="button" onclick="undoAnnotation()">↩️ Deshacer</button>
-      <button type="button" onclick="clearAnnotations()">🗑️ Limpiar marcas</button>
-    </div>
-    <div class="canvasWrap"><canvas id="annotCanvas"></canvas></div>
-    <div class="help">Selecciona una herramienta y toca/arrastra sobre la imagen. Para texto, toca el punto donde quieres colocarlo.</div>
-    <div class="modalActions">
-      <button type="button" class="gray" onclick="closeAnnotator()">Cancelar</button>
-      <button type="button" class="primary" onclick="saveAnnotation()">✓ Guardar anotación</button>
-    </div>
-  </div>
-</div>
+<div id="msg"></div>
 
 <script>
-const KEY = "reporte-diario-v1";
-let data = JSON.parse(localStorage.getItem(KEY) || "null") || {records:[]};
-let annotatedPhotoData = "";
-let annotImage = new Image();
-let annotations = [];
-let currentTool = "circle";
-let drawStart = null;
-let isDrawing = false;
+const DEFAULT_CODES=["S7C-4","S7C-5","S7C-6","S7C-7","S7C-8","T1D-3","T1D-4","SC-39","SC-41","SC-42","SC-45","SC-46"];
+const codeKey="reporteDiarioCodes_v3", recordsKey="reporteDiarioRecords_v3";
+const $=id=>document.getElementById(id);
+let selectedPhotos=[];
 
-function previewPhoto(){
-  const input=document.getElementById("fPhoto");
-  const preview=document.getElementById("preview");
-  const file=input.files && input.files[0];
-  annotatedPhotoData="";
-  document.getElementById("annotateBtn").style.display="none";
-  document.getElementById("annotatedLabel").style.display="none";
-
-  if(!file){
-    preview.src="";
-    preview.style.display="none";
-    return;
-  }
-
-  if(!file.type.startsWith("image/")){
-    alert("Seleccione una imagen.");
-    input.value="";
-    preview.src="";
-    preview.style.display="none";
-    return;
-  }
-
-  const reader=new FileReader();
-  reader.onload=()=>{
-    preview.src=reader.result;
-    preview.style.display="block";
-    document.getElementById("annotateBtn").style.display="block";
-  };
-  reader.readAsDataURL(file);
+function loadCodes(){
+  let codes=JSON.parse(localStorage.getItem(codeKey)||"null");
+  if(!Array.isArray(codes)) codes=[...DEFAULT_CODES];
+  codes=[...new Set(codes.map(x=>String(x).trim().toUpperCase()).filter(Boolean))];
+  localStorage.setItem(codeKey,JSON.stringify(codes));
+  $("equipment").innerHTML='<option value="">Seleccione un equipo</option>'+codes.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
 }
-
-function getPhotoData(){
-  return new Promise((resolve,reject)=>{
-    if(annotatedPhotoData){resolve(annotatedPhotoData);return}
-    const input=document.getElementById("fPhoto");
-    const file=input.files && input.files[0];
-    if(!file){resolve("");return}
-    const reader=new FileReader();
-    reader.onload=()=>resolve(reader.result);
-    reader.onerror=reject;
-    reader.readAsDataURL(file);
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function nowLocal(){
+  const d=new Date(), pad=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function notify(t){$("msg").textContent=t;$("msg").style.display="block";clearTimeout(window._nt);window._nt=setTimeout(()=>$("msg").style.display="none",2600);}
+function renderPhotos(){
+  $("photoPreview").innerHTML=selectedPhotos.map((p,i)=>`
+  <div class="photo-box">
+    <img src="${p.data}" alt="Fotografía ${i+1}">
+    <textarea data-comment="${i}" placeholder="Comentario obligatorio de la fotografía"></textarea>
+  </div>`).join("");
+}
+$("photos").addEventListener("change",e=>{
+  const files=[...e.target.files].slice(0,2);
+  if(e.target.files.length>2) notify("Solo se pueden agregar 2 fotografías.");
+  selectedPhotos=[];
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{selectedPhotos.push({name:file.name,data:ev.target.result});renderPhotos()};
+    r.readAsDataURL(file);
   });
-}
-
-function openAnnotator(){
-  const src=annotatedPhotoData || document.getElementById("preview").src;
-  if(!src){alert("Primero seleccione una fotografía.");return}
-  const modal=document.getElementById("annotModal");
-  modal.style.display="block";
-  modal.setAttribute("aria-hidden","false");
-  annotations=[];
-  drawStart=null;
-  isDrawing=false;
-  annotImage=new Image();
-  annotImage.onload=()=>{
-    const canvas=document.getElementById("annotCanvas");
-    const maxW=Math.min(1200, window.innerWidth-36);
-    const maxH=Math.max(300, window.innerHeight*0.68);
-    const scale=Math.min(maxW/annotImage.naturalWidth,maxH/annotImage.naturalHeight,1);
-    canvas.width=Math.round(annotImage.naturalWidth*scale);
-    canvas.height=Math.round(annotImage.naturalHeight*scale);
-    renderCanvas();
-  };
-  annotImage.src=src;
-  setTool("circle");
-}
-
-function closeAnnotator(){
-  const modal=document.getElementById("annotModal");
-  modal.style.display="none";
-  modal.setAttribute("aria-hidden","true");
-  drawStart=null;
-  isDrawing=false;
-}
-
-function setTool(tool){
-  currentTool=tool;
-  document.querySelectorAll(".toolBar [data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===tool));
-}
-
-function canvasPoint(e){
-  const c=document.getElementById("annotCanvas");
-  const r=c.getBoundingClientRect();
-  const sx=c.width/r.width, sy=c.height/r.height;
-  return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
-}
-
-function renderCanvas(temp){
-  const c=document.getElementById("annotCanvas");
-  if(!c.width || !c.height || !annotImage.naturalWidth)return;
-  const ctx=c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-  ctx.drawImage(annotImage,0,0,c.width,c.height);
-  annotations.forEach(a=>drawAnnotation(ctx,a));
-  if(temp)drawAnnotation(ctx,temp);
-}
-
-function drawAnnotation(ctx,a){
-  ctx.save();
-  ctx.strokeStyle="#dc2626";
-  ctx.fillStyle="#dc2626";
-  ctx.lineWidth=Math.max(4,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/180));
-  ctx.lineCap="round";
-  ctx.lineJoin="round";
-  if(a.type==="circle"){
-    const rx=Math.abs(a.x2-a.x1)/2, ry=Math.abs(a.y2-a.y1)/2;
-    const cx=(a.x1+a.x2)/2, cy=(a.y1+a.y2)/2;
-    ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,2),Math.max(ry,2),0,0,Math.PI*2);ctx.stroke();
-  }else if(a.type==="rect"){
-    ctx.strokeRect(a.x1,a.y1,a.x2-a.x1,a.y2-a.y1);
-  }else if(a.type==="arrow"){
-    const dx=a.x2-a.x1, dy=a.y2-a.y1, len=Math.hypot(dx,dy)||1;
-    const ux=dx/len, uy=dy/len, size=Math.max(12,ctx.lineWidth*4);
-    ctx.beginPath();ctx.moveTo(a.x1,a.y1);ctx.lineTo(a.x2,a.y2);ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(a.x2,a.y2);ctx.lineTo(a.x2-ux*size-uy*size*.65,a.y2-uy*size+ux*size*.65);
-    ctx.lineTo(a.x2-ux*size+uy*size*.65,a.y2-uy*size-ux*size*.65);ctx.closePath();ctx.fill();
-  }else if(a.type==="text"){
-    ctx.font=`700 ${Math.max(20,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/22))}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;
-    ctx.lineWidth=6;ctx.strokeStyle="white";ctx.strokeText(a.text,a.x,a.y);ctx.fillStyle="#dc2626";ctx.fillText(a.text,a.x,a.y);
-  }
-  ctx.restore();
-}
-
-function pointerDown(e){
-  e.preventDefault();
-  const p=canvasPoint(e);
-  if(currentTool==="text"){
-    const text=prompt("Texto para marcar la fotografía:");
-    if(text && text.trim()){
-      annotations.push({type:"text",x:p.x,y:p.y,text:text.trim()});
-      renderCanvas();
-    }
-    return;
-  }
-  drawStart=p;isDrawing=true;
-}
-
-function pointerMove(e){
-  if(!isDrawing)return;
-  e.preventDefault();
-  const p=canvasPoint(e);
-  renderCanvas({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y});
-}
-
-function pointerUp(e){
-  if(!isDrawing)return;
-  e.preventDefault();
-  const p=canvasPoint(e);
-  if(Math.hypot(p.x-drawStart.x,p.y-drawStart.y)>6){
-    annotations.push({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y});
-  }
-  drawStart=null;isDrawing=false;renderCanvas();
-}
-
-function undoAnnotation(){annotations.pop();renderCanvas()}
-function clearAnnotations(){if(annotations.length && confirm("¿Eliminar todas las marcas?")){annotations=[];renderCanvas()}}
-
-function saveAnnotation(){
-  const c=document.getElementById("annotCanvas");
-  if(!c.width)return;
-  renderCanvas();
-  annotatedPhotoData=c.toDataURL("image/jpeg",0.9);
-  document.getElementById("preview").src=annotatedPhotoData;
-  document.getElementById("preview").style.display="block";
-  document.getElementById("annotatedLabel").style.display="block";
-  closeAnnotator();
-}
-
-async function saveRecord(){
-  const equipo=document.getElementById("fEquipo").value.trim();
-  const codigo=document.getElementById("fCodigo").value.trim();
-  const actividad=document.getElementById("fActividad").value.trim();
-  const photoComment=document.getElementById("fPhotoComment").value.trim();
-  const photo=document.getElementById("fPhoto").files[0];
-
-  if(!equipo){alert("Ingrese el nombre del equipo.");return}
-  if(!codigo){alert("Ingrese el código o identificación.");return}
-  if(!actividad){alert("Ingrese la descripción de la actividad.");return}
-  if(photo && !photoComment){
-    alert("Si agrega una fotografía, el comentario de la fotografía es obligatorio.");
-    document.getElementById("fPhotoComment").focus();
-    return;
-  }
-
-  const record={
-    id:Date.now(),
-    fecha:new Date().toLocaleString("es-PE"),
-    equipo,
-    codigo,
-    ubicacion:document.getElementById("fUbicacion").value.trim(),
-    tipo:document.getElementById("fTipo").value,
-    estado:document.getElementById("fEstado").value,
-    hora:document.getElementById("fHora").value.trim(),
-    demora:document.getElementById("fDemora").value.trim(),
-    detencion:document.getElementById("fDet").value,
-    tecnicos:document.getElementById("fTec").value.trim(),
-    actividad,
-    anomalia:document.getElementById("fAnomalia").value.trim(),
-    observaciones:document.getElementById("fObs").value.trim() || "N.A.",
-    photo:await getPhotoData(),
-    photoComment
-  };
-
-  data.records.unshift(record);
-  localStorage.setItem(KEY,JSON.stringify(data));
-  renderRecords();
-  clearForm();
-  alert("Registro guardado correctamente.");
-}
-
-function clearForm(){
-  ["fEquipo","fCodigo","fUbicacion","fHora","fDemora","fTec","fActividad","fAnomalia","fObs","fPhotoComment"].forEach(id=>{
-    document.getElementById(id).value="";
-  });
-  document.getElementById("fTipo").value="PREVENTIVO";
-  document.getElementById("fEstado").value="OPERATIVO";
-  document.getElementById("fDet").value="PARADA";
-  document.getElementById("fPhoto").value="";
-  document.getElementById("preview").src="";
-  document.getElementById("preview").style.display="none";
-  annotatedPhotoData="";
-  document.getElementById("annotateBtn").style.display="none";
-  document.getElementById("annotatedLabel").style.display="none";
-}
-
-function deleteRecord(id){
-  if(!confirm("¿Eliminar este registro?")) return;
-  data.records=data.records.filter(r=>r.id!==id);
-  localStorage.setItem(KEY,JSON.stringify(data));
-  renderRecords();
-}
-
-function esc(v){
-  return String(v ?? "").replace(/[&<>"']/g,m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-
+});
+$("addCode").addEventListener("click",()=>{
+  const code=prompt("Ingrese el nuevo código de equipo:");
+  if(!code) return;
+  const clean=code.trim().toUpperCase();
+  if(!/^[A-Z0-9]+(?:-[A-Z0-9]+)+$/.test(clean)){notify("Formato no válido. Ejemplo: S7C-9");return}
+  let codes=JSON.parse(localStorage.getItem(codeKey)||"[]");
+  if(!codes.includes(clean)) codes.push(clean);
+  localStorage.setItem(codeKey,JSON.stringify(codes));loadCodes();$("equipment").value=clean;notify("Código agregado.");
+});
+function getRecords(){return JSON.parse(localStorage.getItem(recordsKey)||"[]")}
 function renderRecords(){
-  const box=document.getElementById("records");
-  if(!data.records.length){
-    box.innerHTML='<div class="empty">No hay registros todavía.</div>';
-    return;
-  }
-
-  box.innerHTML=data.records.map(r=>`
-    <article class="record">
-      <h3>${esc(r.codigo)} — ${esc(r.equipo)}</h3>
-      <p><b>Fecha:</b> ${esc(r.fecha)}</p>
-      <p><b>Ubicación:</b> ${esc(r.ubicacion || "N.A.")}</p>
-      <p><b>Tipo:</b> ${esc(r.tipo)} &nbsp; <b>Estado:</b> ${esc(r.estado)}</p>
-      <p><b>Actividad:</b> ${esc(r.actividad)}</p>
-      <p><b>Anomalía:</b> ${esc(r.anomalia || "N.A.")}</p>
-      <p><b>Demora:</b> ${esc(r.demora || "N.A.")}</p>
-      <p><b>Técnicos:</b> ${esc(r.tecnicos || "N.A.")}</p>
-      <p><b>Obs.:</b> ${esc(r.observaciones)}</p>
-      ${r.photo ? `<img src="${r.photo}" alt="Fotografía del registro">` : ""}
-      ${r.photo ? `<p><b>Comentario de la fotografía:</b> ${esc(r.photoComment)}</p>` : ""}
-      <div class="actions">
-        <button class="danger" onclick="deleteRecord(${r.id})">Eliminar</button>
-      </div>
-    </article>
-  `).join("");
+  const records=getRecords();
+  if(!records.length){$("records").innerHTML='<div class="small">No hay registros todavía.</div>';return}
+  $("records").innerHTML=records.slice().reverse().map((r,idx)=>`
+  <div class="record">
+    <div class="record-title">${escapeHtml(r.equipment)} <span class="badge">${escapeHtml(r.status)}</span></div>
+    <div class="small">${escapeHtml(r.date)} · ${escapeHtml(r.maintenance)}</div>
+    ${r.activity?`<p>${escapeHtml(r.activity)}</p>`:""}
+    ${r.photos?.length?`<div class="photo-preview">${r.photos.map(p=>`<div class="photo-box"><img src="${p.data}"><div class="small">${escapeHtml(p.comment)}</div></div>`).join("")}</div>`:""}
+  </div>`).join("");
 }
-
-renderRecords();
-const annotCanvas=document.getElementById("annotCanvas");
-annotCanvas.addEventListener("pointerdown",pointerDown);
-annotCanvas.addEventListener("pointermove",pointerMove);
-annotCanvas.addEventListener("pointerup",pointerUp);
-annotCanvas.addEventListener("pointercancel",pointerUp);
+$("reportForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  if(!$("equipment").value){notify("Seleccione un equipo.");return}
+  if(selectedPhotos.length){
+    const comments=[...document.querySelectorAll("[data-comment]")].map(x=>x.value.trim());
+    if(comments.some(c=>!c)){notify("El comentario es obligatorio cuando se agrega una fotografía.");return}
+    selectedPhotos=selectedPhotos.map((p,i)=>({...p,comment:comments[i]}));
+  }
+  const r={equipment:$("equipment").value,date:$("date").value,maintenance:$("maintenance").value,
+    source:$("source").value.trim(),status:$("status").value,activity:$("activity").value.trim(),
+    technicians:$("technicians").value.trim(),supervisor:$("supervisor").value.trim(),photos:selectedPhotos};
+  const records=getRecords();records.push(r);localStorage.setItem(recordsKey,JSON.stringify(records));
+  notify("Reporte guardado correctamente.");clearForm();renderRecords();
+});
+function clearForm(){
+  $("reportForm").reset();$("date").value=nowLocal();selectedPhotos=[];$("photoPreview").innerHTML="";
+}
+$("clear").addEventListener("click",clearForm);
+loadCodes();clearForm();renderRecords();
 </script>
 </body>
 </html>
