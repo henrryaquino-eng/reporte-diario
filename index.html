@@ -2,648 +2,156 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
-<title>Reporte Diario de Mantenimiento — V2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reporte Diario</title>
 <style>
-*{box-sizing:border-box}
-:root{--navy:#0f172a;--blue:#2563eb;--green:#047857;--red:#b91c1c;--bg:#f1f5f9;--line:#cbd5e1}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:#0f172a}
-header{background:var(--navy);color:#fff;padding:22px 16px 18px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.16)}
-header h1{margin:0;font-size:24px;line-height:1.15}
-header p{margin:7px 0 0;color:#cbd5e1;font-size:14px}
-main{max-width:960px;margin:auto;padding:14px 14px 100px}
-.card{background:#fff;border-radius:16px;padding:17px;margin-bottom:14px;box-shadow:0 2px 10px rgba(15,23,42,.07)}
-.sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
-h2{margin:0;font-size:20px}
-h3{margin:0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.full{grid-column:1/-1}
-label{display:block;font-weight:750;font-size:14px;margin-bottom:6px}
-.required{color:#dc2626}
-input,select,textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:13px;font-size:16px;background:#fff;color:#0f172a;outline:none}
-input:focus,select:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-textarea{min-height:88px;resize:vertical}
-.hint{font-size:12px;color:#64748b;margin-top:5px}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-button{border:0;border-radius:11px;padding:13px 16px;font-size:15px;font-weight:750;cursor:pointer}
-button:active{transform:translateY(1px)}
-.primary{background:var(--blue);color:#fff}
-.dark{background:#111827;color:#fff}
-.gray{background:#e2e8f0;color:#0f172a}
-.green{background:#dcfce7;color:#166534}
-.danger{background:#fee2e2;color:var(--red)}
-.outline{background:#fff;color:#1e3a8a;border:1px solid #bfdbfe}
-.notice{margin-top:9px;padding:11px 12px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-weight:650;font-size:14px}
-.ok{margin-top:9px;padding:11px 12px;border-radius:10px;background:#ecfdf5;color:var(--green);font-weight:750}
-.error{border-color:#ef4444!important;background:#fff7f7}
-.errorMsg{color:#b91c1c;font-size:12px;margin-top:4px;font-weight:650}
-.photoPreview{display:none;width:100%;max-height:390px;object-fit:contain;border-radius:12px;background:#e2e8f0;margin-top:11px}
-.photoBox{margin-top:2px}
-.annotateBtn{display:none;margin-top:11px;background:#111827;color:#fff;width:100%}
-.annotatedLabel{display:none;margin-top:9px;padding:9px 12px;border-radius:10px;background:#ecfdf5;color:#047857;font-weight:750}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px;text-align:center}
-.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:#64748b}
-.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.record{border:1px solid #dbe3ee;border-radius:14px;padding:14px;margin-top:10px;background:#fff}
-.recordHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.record h3{font-size:18px}
-.badges{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0}
-.badge{font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:#e2e8f0;color:#334155}
-.badge.blue{background:#dbeafe;color:#1d4ed8}
-.badge.green{background:#dcfce7;color:#166534}
-.badge.red{background:#fee2e2;color:#991b1b}
-.record p{margin:5px 0;line-height:1.35}
-.record img{display:block;width:100%;max-height:330px;object-fit:contain;border-radius:10px;margin-top:10px;background:#f1f5f9}
-.small{font-size:12px;color:#64748b}
-.empty{color:#64748b;text-align:center;padding:20px}
-.stickyActions{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #e2e8f0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));display:flex;gap:8px}
-.stickyActions button{flex:1}
-.editing{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px 12px;border-radius:10px;font-weight:750;margin-bottom:10px}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;padding:10px;overflow:auto}
-.modalBox{max-width:1000px;margin:auto;background:#fff;border-radius:16px;padding:11px;min-height:calc(100vh - 20px);display:flex;flex-direction:column}
-.modalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
-.modalHead h3{font-size:18px}
-.toolBar{display:flex;gap:6px;overflow-x:auto;padding:3px 0 9px;flex-wrap:wrap}
-.toolBar button{padding:9px 10px;font-size:13px;background:#e2e8f0;color:#0f172a;white-space:nowrap}
-.toolBar button.active{background:#2563eb;color:#fff}
-.canvasWrap{flex:1;display:flex;align-items:center;justify-content:center;background:#111827;border-radius:12px;min-height:52vh;overflow:auto;padding:6px}
-#annotCanvas{display:block;max-width:100%;max-height:69vh;touch-action:none;background:#fff}
-.modalActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.modalActions button{flex:1;min-width:120px}
-.help{font-size:12px;color:#475569;margin:7px 2px 0}
-@media(max-width:680px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.stats{grid-template-columns:repeat(3,1fr)}header{position:relative}.recordHead{display:block}}
-
-.customSelect{position:relative;width:100%;z-index:20}
-.customSelectBtn{width:100%;min-height:64px;border:2px solid #cbd5e1;border-radius:18px;background:#fff;padding:14px 18px;font:inherit;font-weight:700;font-size:20px;color:#111827;display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer}
-.customSelectBtn:focus{outline:3px solid rgba(37,99,235,.25);border-color:#2563eb}
-.customSelectBtn .chevron{font-size:28px;line-height:1;transform:translateY(-2px)}
-.customSelectMenu{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);background:#fff;border:2px solid #cbd5e1;border-radius:18px;box-shadow:0 14px 35px rgba(0,0,0,.18);padding:8px;max-height:330px;overflow:auto;z-index:100}
-.customSelect.open .customSelectMenu{display:block}
-.customSelectOption{width:100%;border:0;background:#fff;padding:16px 14px;border-radius:12px;text-align:left;font:inherit;font-weight:700;font-size:19px;color:#111827;cursor:pointer}
-.customSelectOption:active,.customSelectOption:hover{background:#eef2ff}
-.customSelectOption.other{color:#1d4ed8}
-
-
-
-/* V15: estados y PDF compacto */
-.state-operativo{color:#15803d!important;font-weight:900}
-.state-inoperativo{color:#b91c1c!important;font-weight:900}
-.state-observacion{color:#b45309!important;font-weight:900}
-.turnHeader{display:none}
-.shiftLocked .formLockable{opacity:.58}
-@media print{
-  @page{size:A4 portrait;margin:8mm}
-  body{background:#fff!important;color:#111}
-  header{position:static!important;padding:8px 0 6px;background:#fff;color:#111;box-shadow:none}
-  header h1{font-size:16px}
-  header p{font-size:9px;color:#444}
-  main{max-width:none;padding:0}
-  #adminCard,#formCard,main>section.card:not(:last-child){display:none!important}
-  main>section.card:last-child{display:block!important;box-shadow:none;border:0;padding:0;margin:0}
-  .sectionTitle .outline,.stats,.filters,.sectionTitle+ .stats,.actions{display:none!important}
-  .turnHeader{display:block;border-bottom:1.5px solid #111;padding:4px 0 7px;margin-bottom:7px}
-  .turnHeader h2{font-size:13px;margin:0 0 2px}
-  .turnHeader div{font-size:9px}
-  #records{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start}
-  .record{break-inside:avoid;page-break-inside:avoid;border:1px solid #bbb;border-radius:6px;padding:6px;margin:0;font-size:8.5px;line-height:1.2}
-  .recordHead{display:flex!important}
-  .record h3{font-size:10px}
-  .badges{margin:3px 0;gap:3px}
-  .badge{font-size:7px;padding:2px 4px}
-  .record p{margin:2px 0;line-height:1.2}
-  .record img{max-height:95px;margin-top:4px;border-radius:4px}
-  .small{font-size:7px}
-}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;color:#111827}
+header{background:#17365d;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+h1{font-size:22px;margin:0 0 4px}.sub{font-size:13px;opacity:.9}
+main{max-width:760px;margin:auto;padding:14px}.card{background:white;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 6px}
+input,select,textarea,button{width:100%;font:inherit;border-radius:10px;border:1px solid #cbd5e1;padding:11px;background:white}
+textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.readonly{background:#eef2f7}
+button{border:0;background:#17365d;color:white;font-weight:700;margin-top:14px}.secondary{background:#64748b}.danger{background:#b91c1c}
+.status{font-weight:700}.operative{color:#15803d}.inoperative{color:#b91c1c}.pending{color:#b45309}
+.preview{max-width:100%;border-radius:10px;margin-top:8px}.record{border-left:5px solid #17365d;padding:10px 12px;margin:10px 0;background:#f8fafc;border-radius:8px}
+.small{font-size:12px;color:#64748b}.hidden{display:none}
 </style>
 </head>
 <body>
 <header>
-  <h1>Reporte Diario de Mantenimiento</h1>
-  <p>V15 — control de turnos y reporte diario</p>
+  <h1>Reporte Diario</h1>
+  <div class="sub">Registro de mantenimiento de equipos</div>
 </header>
-
 <main>
-<section class="card adminCard" id="adminCard">
-  <div class="sectionTitle">
-    <h2>🔐 Administración del turno</h2>
-    <span id="turnStatus" class="badge">SIN TURNO ABIERTO</span>
+<section class="card">
+  <h2>Datos del reporte</h2>
+  <div class="row">
+    <div><label>Fecha del reporte</label><input id="reportDate" class="readonly" type="date"></div>
+    <div><label>Supervisor</label><input id="supervisor" placeholder="Nombre del supervisor"></div>
   </div>
-  <div id="turnClosedNotice" class="notice" style="display:none"></div>
-  <div class="grid">
-    <div>
-      <label for="turnFecha">Fecha del turno</label>
-      <input id="turnFecha" type="date">
-    </div>
-    <div>
-      <label for="turnoAdmin">Turno</label>
-      <select id="turnoAdmin"><option value="">Seleccione un turno</option><option>DÍA</option><option>NOCHE</option></select>
-    </div>
-    <div class="full">
-      <label for="supervisorAdmin">Supervisor del turno</label>
-      <input id="supervisorAdmin" placeholder="Nombre del supervisor" autocomplete="name">
-    </div>
-    <div class="full">
-      <label for="adminPin">PIN de administrador</label>
-      <input id="adminPin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN">
-      <div class="hint">El supervisor usa este acceso para abrir, cerrar o reabrir el turno.</div>
-    </div>
-  </div>
-  <div class="actions">
-    <button class="primary" onclick="openShift()">🔓 Abrir turno</button>
-    <button class="dark" onclick="closeShift()">🔒 Cerrar turno</button>
-    <button class="gray" onclick="reopenShift()">↻ Reabrir turno</button>
-  </div>
-  <div id="adminMessage" class="ok" style="display:none"></div>
-</section>
-
-<section class="card" id="formCard">
-  <div id="editingBanner" class="editing" style="display:none">✏️ Editando un registro existente</div>
-  <div class="sectionTitle">
-    <h2>1. Reporte diario</h2>
-    <span class="small">Datos del turno administrados por el supervisor</span>
-  </div>
-  <div class="grid">
-    <div>
-      <label>Fecha del turno</label>
-      <input id="fFechaReporte" type="date" readonly>
-    </div>
-    <div>
-      <label>Turno</label>
-      <input id="fTurnoDisplay" type="text" readonly placeholder="Lo define el supervisor">
-      <input id="fTurno" type="hidden">
-    </div>
-<div class="full">
-      <label for="fCodigo">Código del equipo <span class="required">*</span></label>
-      <div class="customSelect" id="codigoDropdown">
-        <button type="button" class="customSelectBtn" id="codigoDropdownBtn" onclick="toggleCodigoDropdown()" aria-expanded="false">
-          <span id="codigoDropdownText">Seleccione un equipo</span>
-          <span class="chevron">⌄</span>
-        </button>
-        <div class="customSelectMenu" id="codigoDropdownMenu"></div>
-      </div>
-      <select id="fCodigo" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none">
-        <option value="">Seleccione un equipo</option>
-      </select>
-      <input id="fCodigoNuevo" type="text" placeholder="Escriba el nuevo código" autocomplete="off"
-             style="display:none;margin-top:10px;text-transform:uppercase"
-             oninput="this.value=this.value.toUpperCase()">
-      <div id="codigoNuevoAyuda" class="hint" style="display:none">Escriba el código nuevo y luego guarde el registro. Se agregará automáticamente a la lista.</div>
-    </div>
-<div>
-      <label for="fTipo">Tipo de mantenimiento</label>
-      <select id="fTipo"><option>PREVENTIVO</option><option>CORRECTIVO</option><option>INSPECCIÓN</option></select>
-    </div>
-<div>
-      <label for="fEstado">Estado del equipo</label>
-      <select id="fEstado"><option>OPERATIVO</option><option>OPERATIVO CON OBSERVACIÓN</option><option>INOPERATIVO</option></select>
-    </div>
-    <div>
-      <label for="fInicio">Inicio de trabajo</label>
-      <input id="fInicio" type="time" onchange="calcularTiempo()">
-    </div>
-    <div>
-      <label for="fFin">Fin de trabajo</label>
-      <input id="fFin" type="time" onchange="calcularTiempo()">
-    </div>
-    <div>
-      <label for="fTiempo">Tiempo de intervención</label>
-      <input id="fTiempo" type="text" placeholder="Se calcula automáticamente" inputmode="decimal">
-      <div class="hint">Se calcula con inicio y fin, pero puede editarse manualmente.</div>
-    </div>
-    <div>
-      <label for="fDemora">Demoras</label>
-      <input id="fDemora" placeholder="Ej. Gestión de repuesto">
-    </div>
-</div>
+  <label>Turno</label>
+  <select id="shift"><option value="">Seleccione turno</option><option>Día</option><option>Noche</option></select>
 </section>
 
 <section class="card">
-  <div class="sectionTitle"><h2>2. Actividad y condición</h2></div>
-  <div class="grid">
-    <div class="full">
-      <label for="fActividad">Descripción de la actividad <span class="required">*</span></label>
-      <textarea id="fActividad" placeholder="Describa el trabajo realizado, condición encontrada o acción necesaria"></textarea>
-    </div>
-<div>
-      <label for="fTec">Técnicos</label>
-      <input id="fTec" placeholder="Nombres de técnicos">
-    </div>
-    <div>
-      <label for="fObs">Observaciones</label>
-      <input id="fObs" placeholder="N.A.">
-    </div>
+  <h2>Registro del técnico</h2>
+  <label>Código de equipo</label>
+  <select id="equipment"></select>
+  <label>Agregar otro código (opcional)</label>
+  <div class="row">
+    <input id="newEquipment" placeholder="Ej. S7C-9">
+    <button type="button" id="addEquipment">Agregar</button>
   </div>
+
+  <label>Fuente</label>
+  <select id="source">
+    <option value="">Seleccione fuente</option>
+    <option>Inspección en PM</option>
+    <option>Inspección</option>
+    <option>Reporte del operador</option>
+    <option>Trabajo programado</option>
+    <option>Otro</option>
+  </select>
+
+  <label>Estado del equipo</label>
+  <select id="status">
+    <option value="">Seleccione estado</option>
+    <option>OPERATIVO</option>
+    <option>INOPERATIVO</option>
+    <option>EN OBSERVACIÓN</option>
+  </select>
+
+  <label>Descripción / observación</label>
+  <textarea id="description" placeholder="Describa el trabajo, condición encontrada u observación"></textarea>
+
+  <label>Comentario</label>
+  <textarea id="comment" placeholder="Comentario adicional"></textarea>
+
+  <label>Fotografía (opcional)</label>
+  <input id="photo" type="file" accept="image/*">
+  <img id="preview" class="preview hidden">
+
+  <button id="save">Guardar registro</button>
 </section>
 
 <section class="card">
-  <div class="sectionTitle"><h2>3. Evidencia fotográfica</h2></div>
-  <div class="photoBox">
-    <label for="fPhoto">Fotografía (opcional)</label>
-    <input id="fPhoto" type="file" accept="image/*" onchange="previewPhoto()">
-    <div class="hint">En iPhone puedes seleccionar una imagen desde la Fototeca.</div>
-    <img id="preview" class="photoPreview" alt="Vista previa de la fotografía">
-    <button id="annotateBtn" type="button" class="annotateBtn" onclick="openAnnotator()">✏️ Anotar / marcar fotografía</button>
-    <div id="annotatedLabel" class="annotatedLabel">✓ Fotografía anotada lista para guardar</div>
-    <label for="fPhotoComment" style="margin-top:12px">Comentario de la fotografía <span class="required">*</span></label>
-    <textarea id="fPhotoComment" placeholder="Describa qué se observa en la fotografía"></textarea>
-    <div class="notice">Si agrega una fotografía, el comentario es obligatorio.</div>
-  </div>
-</section>
-
-<section class="card">
-  <div class="actions">
-    <button class="primary" onclick="saveRecord()">💾 Guardar registro</button>
-    <button class="gray" onclick="clearForm()">Limpiar formulario</button>
-    <button id="cancelEditBtn" class="danger" style="display:none" onclick="cancelEdit()">Cancelar edición</button>
-  </div>
-  <div id="saveMessage" class="ok" style="display:none"></div>
-</section>
-
-<section class="card">
-  <div class="sectionTitle">
-    <h2>Registros de equipos</h2>
-    <button class="outline" onclick="window.print()">🖨️ Imprimir / PDF</button>
-  </div>
-  <div class="stats">
-    <div class="stat"><b id="statTotal">0</b><span>Total</span></div>
-    <div class="stat"><b id="statCorrectivo">0</b><span>Correctivos</span></div>
-    <div class="stat"><b id="statFotos">0</b><span>Con foto</span></div>
-  </div>
-  <div class="filters">
-    <input id="searchBox" placeholder="🔎 Buscar equipo, código, anomalía..." oninput="renderRecords()">
-    <select id="filterTipo" onchange="renderRecords()"><option value="">Todos</option><option>PREVENTIVO</option><option>CORRECTIVO</option></select>
-    <select id="filterEstado" onchange="renderRecords()"><option value="">Todos los estados</option><option>OPERATIVO</option><option>OPERATIVO CON OBSERVACIÓN</option><option>INOPERATIVO</option></select>
-  </div>
-  <div class="actions">
-    <button class="gray" onclick="exportCSV()">⬇️ Exportar CSV</button>
-    <button class="gray" onclick="exportJSON()">💾 Copia de seguridad</button>
-  </div>
-  <div id="turnHeader" class="turnHeader"></div><div id="records"></div>
+  <h2>Registros guardados</h2>
+  <div id="records"></div>
 </section>
 </main>
 
-<div class="stickyActions">
-  <button class="primary" onclick="document.getElementById('formCard').scrollIntoView({behavior:'smooth'})">➕ Nuevo registro</button>
-  <button class="dark" onclick="saveRecord()">💾 Guardar</button>
-</div>
-
-<div id="annotModal" class="modal" aria-hidden="true">
-  <div class="modalBox">
-    <div class="modalHead">
-      <h3>✏️ Anotar fotografía</h3>
-      <button type="button" class="gray" onclick="closeAnnotator()">Cerrar</button>
-    </div>
-    <div class="toolBar">
-      <button type="button" data-tool="circle" onclick="setTool('circle')">⭕ Círculo</button>
-      <button type="button" data-tool="arrow" onclick="setTool('arrow')">➡️ Flecha</button>
-      <button type="button" data-tool="rect" onclick="setTool('rect')">▭ Recuadro</button>
-      <button type="button" data-tool="text" onclick="setTool('text')">T Texto</button>
-      <button type="button" onclick="undoAnnotation()">↩️ Deshacer</button>
-      <button type="button" onclick="clearAnnotations()">🗑️ Limpiar marcas</button>
-    </div>
-    <div class="canvasWrap"><canvas id="annotCanvas"></canvas></div>
-    <div class="help">Selecciona una herramienta y toca/arrastra sobre la imagen. Para texto, toca el lugar donde quieres colocarlo.</div>
-    <div class="modalActions">
-      <button type="button" class="gray" onclick="closeAnnotator()">Cancelar</button>
-      <button type="button" class="primary" onclick="saveAnnotation()">✓ Guardar anotación</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const KEY="reporte-diario-v1";
-const SHIFT_KEY="reporte-diario-turno-v1";
-const ADMIN_PIN="1234";
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
-if(!Array.isArray(data.records))data={records:[]};
-let shift=JSON.parse(localStorage.getItem(SHIFT_KEY)||"null")||null;
-let annotatedPhotoData="";
-let annotImage=new Image();
-let annotations=[];
-let currentTool="circle";
-let drawStart=null,isDrawing=false;
-let editingId=null;
+const defaultEquipment=["S7C-4","S7C-5","S7C-6","S7C-7","S7C-8","T1D-3","T1D-4","SC-39","SC-41","SC-42","SC-45","SC-46"];
+const KEY="reporte_diario_equipos_v3";
+const RKEY="reporte_diario_registros_v3";
+const $=id=>document.getElementById(id);
 
-const ids=["fCodigo","fTec","fActividad","fObs","fPhotoComment","fInicio","fFin","fTiempo","fDemora"];
-
-function el(id){return document.getElementById(id)}
-function showSaveMessage(msg){el("saveMessage").textContent=msg;el("saveMessage").style.display="block";setTimeout(()=>el("saveMessage").style.display="none",2600)}
-
-function previewPhoto(){
-  const input=el("fPhoto"),preview=el("preview"),file=input.files&&input.files[0];
-  annotatedPhotoData="";el("annotateBtn").style.display="none";el("annotatedLabel").style.display="none";
-  if(!file){preview.src="";preview.style.display="none";return}
-  if(!file.type.startsWith("image/")){alert("Seleccione una imagen.");input.value="";preview.src="";preview.style.display="none";return}
-  const reader=new FileReader();
-  reader.onload=()=>{preview.src=reader.result;preview.style.display="block";el("annotateBtn").style.display="block"};
-  reader.readAsDataURL(file);
+function getEquipment(){
+  let a=JSON.parse(localStorage.getItem(KEY)||"null");
+  if(!Array.isArray(a)||!a.length){a=[...defaultEquipment];localStorage.setItem(KEY,JSON.stringify(a))}
+  return a;
 }
-
-function getPhotoData(){
-  return new Promise((resolve,reject)=>{
-    if(annotatedPhotoData){resolve(annotatedPhotoData);return}
-    const file=el("fPhoto").files&&el("fPhoto").files[0];
-    if(!file){resolve("");return}
-    const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);
+function fillEquipment(){
+  const s=$("equipment"); s.innerHTML='<option value="">Seleccione un equipo</option>';
+  getEquipment().forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x;s.appendChild(o)})
+}
+function setDate(){
+  const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  $("reportDate").value=d.toISOString().slice(0,10);
+}
+$("addEquipment").onclick=()=>{
+  const v=$("newEquipment").value.trim().toUpperCase();
+  if(!v)return;
+  const a=getEquipment(); if(!a.includes(v)){a.push(v);localStorage.setItem(KEY,JSON.stringify(a));}
+  fillEquipment(); $("equipment").value=v; $("newEquipment").value="";
+};
+$("status").onchange=()=>{
+  const e=$("status");e.className="";
+  if(e.value==="OPERATIVO")e.classList.add("operative");
+  if(e.value==="INOPERATIVO")e.classList.add("inoperative");
+  if(e.value==="EN OBSERVACIÓN")e.classList.add("pending");
+};
+$("photo").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();r.onload=()=>{$("preview").src=r.result;$("preview").classList.remove("hidden")};r.readAsDataURL(f);
+};
+$("save").onclick=()=>{
+  const required=[["equipment","Código de equipo"],["shift","Turno"],["source","Fuente"],["status","Estado del equipo"]];
+  for(const [id,n] of required)if(!$(`${id}`).value){alert("Complete: "+n);return}
+  const file=$("photo").files[0];
+  if(file && !$("comment").value.trim()){alert("Si agrega una fotografía, el comentario es obligatorio.");return}
+  const r={
+    id:Date.now(),date:$("reportDate").value,supervisor:$("supervisor").value.trim(),
+    shift:$("shift").value,equipment:$("equipment").value,source:$("source").value,
+    status:$("status").value,description:$("description").value.trim(),
+    comment:$("comment").value.trim(),photo:$("preview").src||""
+  };
+  const list=JSON.parse(localStorage.getItem(RKEY)||"[]");list.unshift(r);localStorage.setItem(RKEY,JSON.stringify(list));
+  render(); $("description").value="";$("comment").value="";$("photo").value="";$("preview").src="";$("preview").classList.add("hidden");
+  alert("Registro guardado correctamente.");
+};
+function render(){
+  const list=JSON.parse(localStorage.getItem(RKEY)||"[]"), box=$("records");
+  if(!list.length){box.innerHTML='<div class="small">No hay registros guardados.</div>';return}
+  box.innerHTML="";
+  list.forEach(r=>{
+    const d=document.createElement("div");d.className="record";
+    const cls=r.status==="OPERATIVO"?"operative":r.status==="INOPERATIVO"?"inoperative":"pending";
+    d.innerHTML=`<b>Equipo: ${esc(r.equipment)}</b><br>
+      <span>Turno: ${esc(r.shift)}</span><br>
+      <span>Fuente: ${esc(r.source)}</span><br>
+      <span class="status ${cls}">Estado: ${esc(r.status)}</span><br>
+      ${r.description?`<span>Descripción: ${esc(r.description)}</span><br>`:""}
+      ${r.comment?`<span>Comentario: ${esc(r.comment)}</span><br>`:""}
+      <span class="small">Reporte: ${esc(r.date)} · Supervisor: ${esc(r.supervisor||"Sin asignar")}</span>
+      ${r.photo?`<img class="preview" src="${r.photo}">`:""}`;
+    box.appendChild(d);
   });
 }
-
-function openAnnotator(){
-  const src=annotatedPhotoData||el("preview").src;
-  if(!src){alert("Primero seleccione una fotografía.");return}
-  const modal=el("annotModal");modal.style.display="block";modal.setAttribute("aria-hidden","false");
-  annotations=[];drawStart=null;isDrawing=false;
-  annotImage=new Image();
-  annotImage.onload=()=>{
-    const c=el("annotCanvas"),maxW=Math.min(1200,window.innerWidth-30),maxH=Math.max(300,window.innerHeight*.68);
-    const scale=Math.min(maxW/annotImage.naturalWidth,maxH/annotImage.naturalHeight,1);
-    c.width=Math.round(annotImage.naturalWidth*scale);c.height=Math.round(annotImage.naturalHeight*scale);renderCanvas();
-  };
-  annotImage.src=src;setTool("circle");
-}
-function closeAnnotator(){el("annotModal").style.display="none";el("annotModal").setAttribute("aria-hidden","true");drawStart=null;isDrawing=false}
-function setTool(tool){currentTool=tool;document.querySelectorAll(".toolBar [data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===tool))}
-function canvasPoint(e){const c=el("annotCanvas"),r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}}
-function renderCanvas(temp){const c=el("annotCanvas");if(!c.width||!annotImage.naturalWidth)return;const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(annotImage,0,0,c.width,c.height);annotations.forEach(a=>drawAnnotation(ctx,a));if(temp)drawAnnotation(ctx,temp)}
-function drawAnnotation(ctx,a){
-  ctx.save();ctx.strokeStyle="#dc2626";ctx.fillStyle="#dc2626";ctx.lineWidth=Math.max(4,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/180));ctx.lineCap="round";ctx.lineJoin="round";
-  if(a.type==="circle"){const rx=Math.abs(a.x2-a.x1)/2,ry=Math.abs(a.y2-a.y1)/2,cx=(a.x1+a.x2)/2,cy=(a.y1+a.y2)/2;ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,2),Math.max(ry,2),0,0,Math.PI*2);ctx.stroke()}
-  else if(a.type==="rect"){ctx.strokeRect(a.x1,a.y1,a.x2-a.x1,a.y2-a.y1)}
-  else if(a.type==="arrow"){const dx=a.x2-a.x1,dy=a.y2-a.y1,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,size=Math.max(12,ctx.lineWidth*4);ctx.beginPath();ctx.moveTo(a.x1,a.y1);ctx.lineTo(a.x2,a.y2);ctx.stroke();ctx.beginPath();ctx.moveTo(a.x2,a.y2);ctx.lineTo(a.x2-ux*size-uy*size*.65,a.y2-uy*size+ux*size*.65);ctx.lineTo(a.x2-ux*size+uy*size*.65,a.y2-uy*size-ux*size*.65);ctx.closePath();ctx.fill()}
-  else if(a.type==="text"){ctx.font=`700 ${Math.max(20,Math.round(Math.min(ctx.canvas.width,ctx.canvas.height)/22))}px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif`;ctx.lineWidth=6;ctx.strokeStyle="white";ctx.strokeText(a.text,a.x,a.y);ctx.fillStyle="#dc2626";ctx.fillText(a.text,a.x,a.y)}
-  ctx.restore()
-}
-function pointerDown(e){e.preventDefault();const p=canvasPoint(e);if(currentTool==="text"){const text=prompt("Texto para marcar la fotografía:");if(text&&text.trim()){annotations.push({type:"text",x:p.x,y:p.y,text:text.trim()});renderCanvas()}return}drawStart=p;isDrawing=true}
-function pointerMove(e){if(!isDrawing)return;e.preventDefault();const p=canvasPoint(e);renderCanvas({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y})}
-function pointerUp(e){if(!isDrawing)return;e.preventDefault();const p=canvasPoint(e);if(Math.hypot(p.x-drawStart.x,p.y-drawStart.y)>6)annotations.push({type:currentTool,x1:drawStart.x,y1:drawStart.y,x2:p.x,y2:p.y});drawStart=null;isDrawing=false;renderCanvas()}
-function undoAnnotation(){if(annotations.length){annotations.pop();renderCanvas()}}
-function clearAnnotations(){if(annotations.length&&confirm("¿Eliminar todas las marcas?")){annotations=[];renderCanvas()}}
-function saveAnnotation(){const c=el("annotCanvas");if(!c.width)return;renderCanvas();annotatedPhotoData=c.toDataURL("image/jpeg",.88);el("preview").src=annotatedPhotoData;el("preview").style.display="block";el("annotatedLabel").style.display="block";closeAnnotator()}
-
-
-const DEFAULT_CODES=["S7C-4","S7C-5","S7C-6","S7C-7","S7C-8","T1D-3","T1D-4","SC-39","SC-41","SC-42","SC-45","SC-46"];
-const CODES_KEY="reporte-diario-codigos-v1";
-let equipmentCodes=JSON.parse(localStorage.getItem(CODES_KEY)||"null");
-if(!Array.isArray(equipmentCodes)) equipmentCodes=[...DEFAULT_CODES];
-equipmentCodes=[...new Set(equipmentCodes.map(x=>String(x).trim().toUpperCase()).filter(Boolean))];
-
-function saveEquipmentCodes(){localStorage.setItem(CODES_KEY,JSON.stringify(equipmentCodes))}
-function renderEquipmentCodes(selected=""){
-  const list=el("fCodigo");
-  const menu=el("codigoDropdownMenu");
-  if(!list||!menu)return;
-  list.innerHTML='<option value="">Seleccione un equipo</option>'+
-    equipmentCodes.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")+
-    '<option value="__OTRO__">Otro código…</option>';
-  menu.innerHTML=equipmentCodes.map(c=>
-    `<button type="button" class="customSelectOption" onclick="selectCodigoOption('${esc(c)}')">${esc(c)}</button>`
-  ).join("")+
-    `<button type="button" class="customSelectOption other" onclick="selectCodigoOption('__OTRO__')">➕ Otro código…</button>`;
-  if(selected && equipmentCodes.includes(selected)){
-    list.value=selected;
-    el("codigoDropdownText").textContent=selected;
-  }else{
-    list.value="";
-    el("codigoDropdownText").textContent="Seleccione un equipo";
-  }
-}
-function toggleCodigoDropdown(){
-  const dd=el("codigoDropdown");
-  const open=dd.classList.toggle("open");
-  el("codigoDropdownBtn").setAttribute("aria-expanded",open?"true":"false");
-}
-function closeCodigoDropdown(){
-  const dd=el("codigoDropdown");
-  if(dd)dd.classList.remove("open");
-  const btn=el("codigoDropdownBtn");
-  if(btn)btn.setAttribute("aria-expanded","false");
-}
-function selectCodigoOption(value){
-  const list=el("fCodigo");
-  list.value=value;
-  if(value==="__OTRO__"){
-    el("codigoDropdownText").textContent="➕ Otro código…";
-    el("fCodigoNuevo").style.display="block";
-    el("codigoNuevoAyuda").style.display="block";
-    el("fCodigoNuevo").focus();
-  }else{
-    el("codigoDropdownText").textContent=value;
-    el("fCodigoNuevo").value="";
-    el("fCodigoNuevo").style.display="none";
-    el("codigoNuevoAyuda").style.display="none";
-  }
-  closeCodigoDropdown();
-  handleCodigoSelect();
-}
-document.addEventListener("click",function(e){
-  const dd=el("codigoDropdown");
-  if(dd && !dd.contains(e.target))closeCodigoDropdown();
-});
-
-function addEquipmentCode(code){
-  code=String(code||"").trim().toUpperCase();
-  if(!code)return false;
-  if(!equipmentCodes.includes(code)){
-    equipmentCodes.push(code);equipmentCodes.sort();saveEquipmentCodes();
-  }
-  renderEquipmentCodes(code);
-  el("fCodigoNuevo").value="";
-  el("fCodigoNuevo").style.display="none";
-  el("codigoNuevoAyuda").style.display="none";
-  return true;
-}
-function handleCodigoSelect(){
-  const select=el("fCodigo");
-  const nuevo=el("fCodigoNuevo");
-  const ayuda=el("codigoNuevoAyuda");
-  if(select.value==="__OTRO__"){
-    nuevo.style.display="block";
-    ayuda.style.display="block";
-    nuevo.focus();
-  }else{
-    nuevo.value="";
-    nuevo.style.display="none";
-    ayuda.style.display="none";
-  }
-}
-function getCodigoActual(){
-  const select=el("fCodigo");
-  if(select.value==="__OTRO__") return el("fCodigoNuevo").value.trim().toUpperCase();
-  return select.value.trim().toUpperCase();
-}
-
-function clearErrors(){document.querySelectorAll(".error").forEach(x=>x.classList.remove("error"));document.querySelectorAll(".errorMsg").forEach(x=>x.remove())}
-function markError(id,msg){const e=el(id);e.classList.add("error");const p=e.parentElement;if(!p.querySelector(".errorMsg")){const d=document.createElement("div");d.className="errorMsg";d.textContent=msg;p.appendChild(d)}}
-function calcularTiempo(){
-  const ini=el("fInicio").value, fin=el("fFin").value;
-  if(!ini||!fin)return;
-  const [ih,im]=ini.split(":").map(Number), [fh,fm]=fin.split(":").map(Number);
-  let start=ih*60+im, end=fh*60+fm;
-  if(end<start) end+=24*60;
-  const mins=end-start;
-  el("fTiempo").value=`${Math.floor(mins/60)} h ${mins%60} min`;
-}
-
-function adminAuthorized(){
-  const pin=el("adminPin").value.trim();
-  if(pin!==ADMIN_PIN){alert("PIN de administrador incorrecto.");return false}
-  return true;
-}
-function shiftKeyValue(x=shift){return x?`${x.fecha}|${x.turno}`:""}
-function updateShiftUI(){
-  const status=el("turnStatus"), notice=el("turnClosedNotice");
-  if(!shift){
-    status.textContent="SIN TURNO ABIERTO"; status.className="badge red";
-    notice.style.display="none";
-    el("fFechaReporte").value=localDateValue();
-    el("fTurno").value=""; el("fTurnoDisplay").value="";
-    document.body.classList.remove("shiftLocked");
-    return;
-  }
-  el("fFechaReporte").value=shift.fecha;
-  el("fTurno").value=shift.turno;
-  el("fTurnoDisplay").value=shift.turno;
-  status.textContent=shift.cerrado?"TURNO CERRADO":"TURNO ABIERTO";
-  status.className=shift.cerrado?"badge red":"badge green";
-  notice.style.display="block";
-  notice.textContent=`Fecha: ${shift.fecha} · Turno: ${shift.turno} · Supervisor: ${shift.supervisor}${shift.cerrado?" · CERRADO — edición bloqueada":""}`;
-  document.body.classList.toggle("shiftLocked",!!shift.cerrado);
-  const h=el("turnHeader");
-  if(h)h.innerHTML=`<h2>REPORTE DIARIO — ${esc(shift.fecha)} — TURNO ${esc(shift.turno)}</h2><div><b>Supervisor:</b> ${esc(shift.supervisor)} · <b>Estado:</b> ${shift.cerrado?"CERRADO":"ABIERTO"}</div>`;
-  renderRecords();
-}
-function openShift(){
-  if(!adminAuthorized())return;
-  const fecha=el("turnFecha").value||localDateValue(), turno=el("turnoAdmin").value, supervisor=el("supervisorAdmin").value.trim();
-  if(!turno||!supervisor){alert("Ingrese fecha, turno y nombre del supervisor.");return}
-  if(shift && !shift.cerrado && !confirm("Ya existe un turno abierto. ¿Reemplazarlo?"))return;
-  shift={fecha,turno,supervisor,cerrado:false,openedAt:new Date().toISOString()};
-  localStorage.setItem(SHIFT_KEY,JSON.stringify(shift)); el("adminMessage").textContent="Turno abierto correctamente.";el("adminMessage").style.display="block"; updateShiftUI();
-}
-function closeShift(){
-  if(!adminAuthorized()||!shift){if(!shift)alert("No hay un turno abierto.");return}
-  if(!confirm("¿Cerrar este turno? Los registros quedarán bloqueados."))return;
-  shift.cerrado=true;shift.closedAt=new Date().toISOString();localStorage.setItem(SHIFT_KEY,JSON.stringify(shift));updateShiftUI();
-  el("adminMessage").textContent="Turno cerrado. Los registros quedan protegidos.";el("adminMessage").style.display="block";
-}
-function reopenShift(){
-  if(!adminAuthorized()||!shift){if(!shift)alert("No hay un turno.");return}
-  shift.cerrado=false;shift.reopenedAt=new Date().toISOString();localStorage.setItem(SHIFT_KEY,JSON.stringify(shift));updateShiftUI();
-  el("adminMessage").textContent="Turno reabierto para correcciones.";el("adminMessage").style.display="block";
-}
-function ensureShiftOpen(){
-  if(!shift){alert("Primero el supervisor debe abrir un turno.");return false}
-  if(shift.cerrado){alert("El turno está cerrado. Solo el supervisor puede reabrirlo.");return false}
-  return true;
-}
-function validateForm(){
-  clearErrors();let first=null;
-  if(!ensureShiftOpen())return false;
-  [["fCodigo","Ingrese el código del equipo."],["fActividad","Ingrese la descripción de la actividad."]].forEach(([id,msg])=>{
-    const value=id==="fCodigo"?getCodigoActual():el(id).value.trim();
-    if(!value){markError(id,msg);if(!first)first=el(id)}
-  });
-  const hasPhoto=!!(annotatedPhotoData||((el("fPhoto").files||[])[0]));
-  if(hasPhoto&&!el("fPhotoComment").value.trim()){markError("fPhotoComment","Si agrega una fotografía, el comentario es obligatorio.");if(!first)first=el("fPhotoComment")}
-  if(first){first.focus();first.scrollIntoView({behavior:"smooth",block:"center"});return false}return true
-}
-
-
-function localDateValue(date=new Date()){
-  const pad=n=>String(n).padStart(2,"0");
-  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
-}
-function setAutomaticReportDate(){
-  el("fFechaReporte").value=localDateValue();
-}
-
-async function saveRecord(){
-  if(!ensureShiftOpen())return;
-  if(!validateForm())return;
-  const codigo=getCodigoActual(); addEquipmentCode(codigo);
-  const now=new Date();
-  const record={
-    id:editingId||Date.now(),
-    fechaReporte:shift.fecha, turno:shift.turno, supervisor:shift.supervisor,
-    turnoKey:shiftKeyValue(), actualizado:now.toLocaleString("es-PE"), codigo:codigo,tipo:el("fTipo").value,estado:el("fEstado").value,
-    inicio:el("fInicio").value,fin:el("fFin").value,tiempoIntervencion:el("fTiempo").value.trim(),demora:el("fDemora").value.trim(),
-    tecnicos:el("fTec").value.trim(),actividad:el("fActividad").value.trim(),observaciones:el("fObs").value.trim()||"N.A.",photo:await getPhotoData(),photoComment:el("fPhotoComment").value.trim()
-  };
-  if(editingId){const i=data.records.findIndex(r=>r.id===editingId);if(i>=0)data.records[i]=record}else data.records.unshift(record);
-  try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){alert("El almacenamiento del teléfono está lleno. Reduzca el tamaño de las fotografías o elimine registros antiguos.");return}
-  renderRecords();clearForm();showSaveMessage(editingId?"Registro actualizado correctamente.":"Registro guardado correctamente.");editingId=null;updateEditUI();
-  document.getElementById("records").scrollIntoView({behavior:"smooth",block:"start"});
-}
-function clearForm(){
-  ids.forEach(id=>el(id).value=""); 
-  el("fTipo").value="PREVENTIVO";el("fEstado").value="OPERATIVO";
-  el("fPhoto").value="";el("preview").src="";el("preview").style.display="none";annotatedPhotoData="";el("annotateBtn").style.display="none";el("annotatedLabel").style.display="none";clearErrors()
-}
-function cancelEdit(){editingId=null;clearForm();updateEditUI()}
-function updateEditUI(){el("editingBanner").style.display=editingId?"block":"none";el("cancelEditBtn").style.display=editingId?"inline-block":"none"}
-
-function editRecord(id){
-  if(!ensureShiftOpen())return;
-  const r=data.records.find(x=>x.id===id);if(!r)return;editingId=id;el("fFechaReporte").value=r.fechaReporte||localDateValue();el("fTurno").value=r.turno||"";
-  renderEquipmentCodes();
-  if(r.codigo && equipmentCodes.includes(r.codigo)){
-    renderEquipmentCodes(r.codigo); handleCodigoSelect();
-  }else if(r.codigo){
-    selectCodigoOption("__OTRO__"); el("fCodigoNuevo").value=r.codigo;
-  }
-  el("fTipo").value=r.tipo||"PREVENTIVO";el("fEstado").value=r.estado||"OPERATIVO";el("fInicio").value=r.inicio||"";el("fFin").value=r.fin||"";el("fTiempo").value=r.tiempoIntervencion||"";el("fDemora").value=r.demora||"";
-  el("fTec").value=r.tecnicos||"";el("fActividad").value=r.actividad||"";
-  el("fObs").value=r.observaciones==="N.A."?"":r.observaciones||"";el("fPhotoComment").value=r.photoComment||"";
-  annotatedPhotoData=r.photo||"";if(r.photo){el("preview").src=r.photo;el("preview").style.display="block";el("annotateBtn").style.display="block";el("annotatedLabel").style.display="block"}
-  updateEditUI();el("formCard").scrollIntoView({behavior:"smooth",block:"start"})
-}
-function deleteRecord(id){if(!ensureShiftOpen())return;if(!confirm("¿Eliminar este registro? Esta acción no se puede deshacer."))return;data.records=data.records.filter(r=>r.id!==id);localStorage.setItem(KEY,JSON.stringify(data));if(editingId===id){editingId=null;clearForm();updateEditUI()}renderRecords()}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-
-function renderRecords(){
-  const box=el("records"),q=el("searchBox").value.trim().toLowerCase(),tipo=el("filterTipo").value,estado=el("filterEstado").value;
-  const all=shift?data.records.filter(r=>(r.turnoKey||`${r.fechaReporte||""}|${r.turno||""}`)===shiftKeyValue()):[];
-  el("statTotal").textContent=all.length;el("statCorrectivo").textContent=all.filter(r=>r.tipo==="CORRECTIVO").length;el("statFotos").textContent=all.filter(r=>r.photo).length;
-  const list=all.filter(r=>{const hay=[r.codigo,r.actividad,r.tecnicos,r.observaciones].join(" ").toLowerCase();return(!q||hay.includes(q))&&(!tipo||r.tipo===tipo)&&(!estado||r.estado===estado)});
-  if(!list.length){box.innerHTML='<div class="empty">No hay registros que coincidan con la búsqueda.</div>';return}
-  box.innerHTML=list.map(r=>`
-  <article class="record">
-    <div class="recordHead"><div><h3>Equipo: ${esc(r.codigo||"N.A.")}</h3><div class="badges">
-      <span class="badge blue">${esc(r.tipo||"N.A.")}</span><span class="badge ${r.estado==="INOPERATIVO"?"red":r.estado==="OPERATIVO CON OBSERVACIÓN"?"":"green"}"><span class="${r.estado==="INOPERATIVO"?"state-inoperativo":r.estado==="OPERATIVO CON OBSERVACIÓN"?"state-observacion":"state-operativo"}">${esc(r.estado||"N.A.")}</span></span>
-    </div></div><div class="small">${esc(r.turno||"")}</div></div>
-    <p><b>Tiempo:</b> ${esc(r.inicio||"--")} – ${esc(r.fin||"--")} &nbsp; <b>Intervención:</b> ${esc(r.tiempoIntervencion||"N.A.")}</p>
-    <p><b>Demoras:</b> ${esc(r.demora||"N.A.")}</p>
-    <p><b>Actividad:</b> ${esc(r.actividad||"N.A.")}</p>
-    <p><b>Sistema:</b> ${esc(r.sistema||"N.A.")} &nbsp; <b>Síntoma:</b> ${esc(r.sintoma||"N.A.")}</p>
-    <p><b>Técnicos:</b> ${esc(r.tecnicos||"N.A.")}</p>
-    <p><b>Obs.:</b> ${esc(r.observaciones||"N.A.")}</p>
-    ${r.photo?`<img src="${r.photo}" alt="Fotografía del registro"><p><b>Comentario de la fotografía:</b> ${esc(r.photoComment||"")}</p>`:""}
-    <div class="actions"><button class="outline" onclick="editRecord(${r.id})">✏️ Editar</button><button class="danger" onclick="deleteRecord(${r.id})">Eliminar</button></div>
-  </article>`).join("")
-}
-
-function csvEscape(v){return `"${String(v??"").replace(/"/g,'""')}"`}
-function exportCSV(){
-  const rows=[["Fecha del turno","Turno","Supervisor","Código","Tipo","Estado","Inicio","Fin","Tiempo de intervención","Demoras","Actividad","Técnicos","Observaciones","Comentario fotografía"]];
-  const rowsData=shift?data.records.filter(r=>(r.turnoKey||`${r.fechaReporte||""}|${r.turno||""}`)===shiftKeyValue()):[];
-  rowsData.forEach(r=>rows.push([r.fechaReporte,r.turno,r.supervisor||shift?.supervisor||"",r.codigo,r.tipo,r.estado,r.inicio,r.fin,r.tiempoIntervencion,r.demora,r.actividad,r.tecnicos,r.observaciones,r.photoComment]));
-  const blob=new Blob(["\ufeff"+rows.map(row=>row.map(csvEscape).join(";")).join("\n")],{type:"text/csv;charset=utf-8"});
-  downloadBlob(blob,"reporte-diario.csv")
-}
-function exportJSON(){downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"reporte-diario-backup.json")}
-function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-
-const annotCanvas=el("annotCanvas");annotCanvas.addEventListener("pointerdown",pointerDown);annotCanvas.addEventListener("pointermove",pointerMove);annotCanvas.addEventListener("pointerup",pointerUp);annotCanvas.addEventListener("pointercancel",pointerUp);
-renderEquipmentCodes(); 
-el("turnFecha").value=localDateValue();
-if(shift){
-  el("turnFecha").value=shift.fecha;
-  el("turnoAdmin").value=shift.turno;
-  el("supervisorAdmin").value=shift.supervisor||"";
-}
-updateShiftUI();
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+fillEquipment();setDate();render();
 </script>
 </body>
 </html>
