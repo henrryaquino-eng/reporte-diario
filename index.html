@@ -85,29 +85,94 @@ button:active{transform:translateY(1px)}
 .customSelectOption:active,.customSelectOption:hover{background:#eef2ff}
 .customSelectOption.other{color:#1d4ed8}
 
+
+
+/* V15: estados y PDF compacto */
+.state-operativo{color:#15803d!important;font-weight:900}
+.state-inoperativo{color:#b91c1c!important;font-weight:900}
+.state-observacion{color:#b45309!important;font-weight:900}
+.turnHeader{display:none}
+.shiftLocked .formLockable{opacity:.58}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  body{background:#fff!important;color:#111}
+  header{position:static!important;padding:8px 0 6px;background:#fff;color:#111;box-shadow:none}
+  header h1{font-size:16px}
+  header p{font-size:9px;color:#444}
+  main{max-width:none;padding:0}
+  #adminCard,#formCard,main>section.card:not(:last-child){display:none!important}
+  main>section.card:last-child{display:block!important;box-shadow:none;border:0;padding:0;margin:0}
+  .sectionTitle .outline,.stats,.filters,.sectionTitle+ .stats,.actions{display:none!important}
+  .turnHeader{display:block;border-bottom:1.5px solid #111;padding:4px 0 7px;margin-bottom:7px}
+  .turnHeader h2{font-size:13px;margin:0 0 2px}
+  .turnHeader div{font-size:9px}
+  #records{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start}
+  .record{break-inside:avoid;page-break-inside:avoid;border:1px solid #bbb;border-radius:6px;padding:6px;margin:0;font-size:8.5px;line-height:1.2}
+  .recordHead{display:flex!important}
+  .record h3{font-size:10px}
+  .badges{margin:3px 0;gap:3px}
+  .badge{font-size:7px;padding:2px 4px}
+  .record p{margin:2px 0;line-height:1.2}
+  .record img{max-height:95px;margin-top:4px;border-radius:4px}
+  .small{font-size:7px}
+}
 </style>
 </head>
 <body>
 <header>
   <h1>Reporte Diario de Mantenimiento</h1>
-  <p>V13 — reporte diario por turno</p>
+  <p>V15 — control de turnos y reporte diario</p>
 </header>
 
 <main>
+<section class="card adminCard" id="adminCard">
+  <div class="sectionTitle">
+    <h2>🔐 Administración del turno</h2>
+    <span id="turnStatus" class="badge">SIN TURNO ABIERTO</span>
+  </div>
+  <div id="turnClosedNotice" class="notice" style="display:none"></div>
+  <div class="grid">
+    <div>
+      <label for="turnFecha">Fecha del turno</label>
+      <input id="turnFecha" type="date">
+    </div>
+    <div>
+      <label for="turnoAdmin">Turno</label>
+      <select id="turnoAdmin"><option value="">Seleccione un turno</option><option>DÍA</option><option>NOCHE</option></select>
+    </div>
+    <div class="full">
+      <label for="supervisorAdmin">Supervisor del turno</label>
+      <input id="supervisorAdmin" placeholder="Nombre del supervisor" autocomplete="name">
+    </div>
+    <div class="full">
+      <label for="adminPin">PIN de administrador</label>
+      <input id="adminPin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN">
+      <div class="hint">El supervisor usa este acceso para abrir, cerrar o reabrir el turno.</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="primary" onclick="openShift()">🔓 Abrir turno</button>
+    <button class="dark" onclick="closeShift()">🔒 Cerrar turno</button>
+    <button class="gray" onclick="reopenShift()">↻ Reabrir turno</button>
+  </div>
+  <div id="adminMessage" class="ok" style="display:none"></div>
+</section>
+
 <section class="card" id="formCard">
   <div id="editingBanner" class="editing" style="display:none">✏️ Editando un registro existente</div>
   <div class="sectionTitle">
     <h2>1. Reporte diario</h2>
-    <span class="small">24 horas de trabajo</span>
+    <span class="small">Datos del turno administrados por el supervisor</span>
   </div>
   <div class="grid">
     <div>
-      <label for="fFechaReporte">Fecha del reporte</label>
-      <input id="fFechaReporte" type="date">
+      <label>Fecha del turno</label>
+      <input id="fFechaReporte" type="date" readonly>
     </div>
     <div>
-      <label for="fTurno">Turno del reporte <span class="required">*</span></label>
-      <select id="fTurno"><option value="">Seleccione un turno</option><option>DÍA</option><option>NOCHE</option></select>
+      <label>Turno</label>
+      <input id="fTurnoDisplay" type="text" readonly placeholder="Lo define el supervisor">
+      <input id="fTurno" type="hidden">
     </div>
 <div class="full">
       <label for="fCodigo">Código del equipo <span class="required">*</span></label>
@@ -215,7 +280,7 @@ button:active{transform:translateY(1px)}
     <button class="gray" onclick="exportCSV()">⬇️ Exportar CSV</button>
     <button class="gray" onclick="exportJSON()">💾 Copia de seguridad</button>
   </div>
-  <div id="records"></div>
+  <div id="turnHeader" class="turnHeader"></div><div id="records"></div>
 </section>
 </main>
 
@@ -249,8 +314,11 @@ button:active{transform:translateY(1px)}
 
 <script>
 const KEY="reporte-diario-v1";
+const SHIFT_KEY="reporte-diario-turno-v1";
+const ADMIN_PIN="1234";
 let data=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
 if(!Array.isArray(data.records))data={records:[]};
+let shift=JSON.parse(localStorage.getItem(SHIFT_KEY)||"null")||null;
 let annotatedPhotoData="";
 let annotImage=new Image();
 let annotations=[];
@@ -418,9 +486,62 @@ function calcularTiempo(){
   el("fTiempo").value=`${Math.floor(mins/60)} h ${mins%60} min`;
 }
 
+function adminAuthorized(){
+  const pin=el("adminPin").value.trim();
+  if(pin!==ADMIN_PIN){alert("PIN de administrador incorrecto.");return false}
+  return true;
+}
+function shiftKeyValue(x=shift){return x?`${x.fecha}|${x.turno}`:""}
+function updateShiftUI(){
+  const status=el("turnStatus"), notice=el("turnClosedNotice");
+  if(!shift){
+    status.textContent="SIN TURNO ABIERTO"; status.className="badge red";
+    notice.style.display="none";
+    el("fFechaReporte").value=localDateValue();
+    el("fTurno").value=""; el("fTurnoDisplay").value="";
+    document.body.classList.remove("shiftLocked");
+    return;
+  }
+  el("fFechaReporte").value=shift.fecha;
+  el("fTurno").value=shift.turno;
+  el("fTurnoDisplay").value=shift.turno;
+  status.textContent=shift.cerrado?"TURNO CERRADO":"TURNO ABIERTO";
+  status.className=shift.cerrado?"badge red":"badge green";
+  notice.style.display="block";
+  notice.textContent=`Fecha: ${shift.fecha} · Turno: ${shift.turno} · Supervisor: ${shift.supervisor}${shift.cerrado?" · CERRADO — edición bloqueada":""}`;
+  document.body.classList.toggle("shiftLocked",!!shift.cerrado);
+  const h=el("turnHeader");
+  if(h)h.innerHTML=`<h2>REPORTE DIARIO — ${esc(shift.fecha)} — TURNO ${esc(shift.turno)}</h2><div><b>Supervisor:</b> ${esc(shift.supervisor)} · <b>Estado:</b> ${shift.cerrado?"CERRADO":"ABIERTO"}</div>`;
+  renderRecords();
+}
+function openShift(){
+  if(!adminAuthorized())return;
+  const fecha=el("turnFecha").value||localDateValue(), turno=el("turnoAdmin").value, supervisor=el("supervisorAdmin").value.trim();
+  if(!turno||!supervisor){alert("Ingrese fecha, turno y nombre del supervisor.");return}
+  if(shift && !shift.cerrado && !confirm("Ya existe un turno abierto. ¿Reemplazarlo?"))return;
+  shift={fecha,turno,supervisor,cerrado:false,openedAt:new Date().toISOString()};
+  localStorage.setItem(SHIFT_KEY,JSON.stringify(shift)); el("adminMessage").textContent="Turno abierto correctamente.";el("adminMessage").style.display="block"; updateShiftUI();
+}
+function closeShift(){
+  if(!adminAuthorized()||!shift){if(!shift)alert("No hay un turno abierto.");return}
+  if(!confirm("¿Cerrar este turno? Los registros quedarán bloqueados."))return;
+  shift.cerrado=true;shift.closedAt=new Date().toISOString();localStorage.setItem(SHIFT_KEY,JSON.stringify(shift));updateShiftUI();
+  el("adminMessage").textContent="Turno cerrado. Los registros quedan protegidos.";el("adminMessage").style.display="block";
+}
+function reopenShift(){
+  if(!adminAuthorized()||!shift){if(!shift)alert("No hay un turno.");return}
+  shift.cerrado=false;shift.reopenedAt=new Date().toISOString();localStorage.setItem(SHIFT_KEY,JSON.stringify(shift));updateShiftUI();
+  el("adminMessage").textContent="Turno reabierto para correcciones.";el("adminMessage").style.display="block";
+}
+function ensureShiftOpen(){
+  if(!shift){alert("Primero el supervisor debe abrir un turno.");return false}
+  if(shift.cerrado){alert("El turno está cerrado. Solo el supervisor puede reabrirlo.");return false}
+  return true;
+}
 function validateForm(){
   clearErrors();let first=null;
-  [["fCodigo","Ingrese el código del equipo."],["fTurno","Seleccione el turno del reporte."],["fActividad","Ingrese la descripción de la actividad."]].forEach(([id,msg])=>{
+  if(!ensureShiftOpen())return false;
+  [["fCodigo","Ingrese el código del equipo."],["fActividad","Ingrese la descripción de la actividad."]].forEach(([id,msg])=>{
     const value=id==="fCodigo"?getCodigoActual():el(id).value.trim();
     if(!value){markError(id,msg);if(!first)first=el(id)}
   });
@@ -439,13 +560,14 @@ function setAutomaticReportDate(){
 }
 
 async function saveRecord(){
+  if(!ensureShiftOpen())return;
   if(!validateForm())return;
   const codigo=getCodigoActual(); addEquipmentCode(codigo);
   const now=new Date();
   const record={
     id:editingId||Date.now(),
-    fechaReporte:el("fFechaReporte").value, turno:el("fTurno").value,
-    actualizado:now.toLocaleString("es-PE"), codigo:codigo,tipo:el("fTipo").value,estado:el("fEstado").value,
+    fechaReporte:shift.fecha, turno:shift.turno, supervisor:shift.supervisor,
+    turnoKey:shiftKeyValue(), actualizado:now.toLocaleString("es-PE"), codigo:codigo,tipo:el("fTipo").value,estado:el("fEstado").value,
     inicio:el("fInicio").value,fin:el("fFin").value,tiempoIntervencion:el("fTiempo").value.trim(),demora:el("fDemora").value.trim(),
     tecnicos:el("fTec").value.trim(),actividad:el("fActividad").value.trim(),observaciones:el("fObs").value.trim()||"N.A.",photo:await getPhotoData(),photoComment:el("fPhotoComment").value.trim()
   };
@@ -455,14 +577,15 @@ async function saveRecord(){
   document.getElementById("records").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function clearForm(){
-  ids.forEach(id=>el(id).value=""); setAutomaticReportDate();
-  el("fTurno").value="";el("fTipo").value="PREVENTIVO";el("fEstado").value="OPERATIVO";
+  ids.forEach(id=>el(id).value=""); 
+  el("fTipo").value="PREVENTIVO";el("fEstado").value="OPERATIVO";
   el("fPhoto").value="";el("preview").src="";el("preview").style.display="none";annotatedPhotoData="";el("annotateBtn").style.display="none";el("annotatedLabel").style.display="none";clearErrors()
 }
 function cancelEdit(){editingId=null;clearForm();updateEditUI()}
 function updateEditUI(){el("editingBanner").style.display=editingId?"block":"none";el("cancelEditBtn").style.display=editingId?"inline-block":"none"}
 
 function editRecord(id){
+  if(!ensureShiftOpen())return;
   const r=data.records.find(x=>x.id===id);if(!r)return;editingId=id;el("fFechaReporte").value=r.fechaReporte||localDateValue();el("fTurno").value=r.turno||"";
   renderEquipmentCodes();
   if(r.codigo && equipmentCodes.includes(r.codigo)){
@@ -476,19 +599,19 @@ function editRecord(id){
   annotatedPhotoData=r.photo||"";if(r.photo){el("preview").src=r.photo;el("preview").style.display="block";el("annotateBtn").style.display="block";el("annotatedLabel").style.display="block"}
   updateEditUI();el("formCard").scrollIntoView({behavior:"smooth",block:"start"})
 }
-function deleteRecord(id){if(!confirm("¿Eliminar este registro? Esta acción no se puede deshacer."))return;data.records=data.records.filter(r=>r.id!==id);localStorage.setItem(KEY,JSON.stringify(data));if(editingId===id){editingId=null;clearForm();updateEditUI()}renderRecords()}
+function deleteRecord(id){if(!ensureShiftOpen())return;if(!confirm("¿Eliminar este registro? Esta acción no se puede deshacer."))return;data.records=data.records.filter(r=>r.id!==id);localStorage.setItem(KEY,JSON.stringify(data));if(editingId===id){editingId=null;clearForm();updateEditUI()}renderRecords()}
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 
 function renderRecords(){
   const box=el("records"),q=el("searchBox").value.trim().toLowerCase(),tipo=el("filterTipo").value,estado=el("filterEstado").value;
-  const all=data.records;
+  const all=shift?data.records.filter(r=>(r.turnoKey||`${r.fechaReporte||""}|${r.turno||""}`)===shiftKeyValue()):[];
   el("statTotal").textContent=all.length;el("statCorrectivo").textContent=all.filter(r=>r.tipo==="CORRECTIVO").length;el("statFotos").textContent=all.filter(r=>r.photo).length;
   const list=all.filter(r=>{const hay=[r.codigo,r.actividad,r.tecnicos,r.observaciones].join(" ").toLowerCase();return(!q||hay.includes(q))&&(!tipo||r.tipo===tipo)&&(!estado||r.estado===estado)});
   if(!list.length){box.innerHTML='<div class="empty">No hay registros que coincidan con la búsqueda.</div>';return}
   box.innerHTML=list.map(r=>`
   <article class="record">
     <div class="recordHead"><div><h3>Equipo: ${esc(r.codigo||"N.A.")}</h3><div class="badges">
-      <span class="badge blue">${esc(r.tipo||"N.A.")}</span><span class="badge">${esc(r.flota||"N.A.")}</span><span class="badge ${r.estado==="INOPERATIVO"?"red":r.estado==="OPERATIVO CON OBSERVACIÓN"?"red":"green"}">${esc(r.estado||"N.A.")}</span>
+      <span class="badge blue">${esc(r.tipo||"N.A.")}</span><span class="badge ${r.estado==="INOPERATIVO"?"red":r.estado==="OPERATIVO CON OBSERVACIÓN"?"":"green"}"><span class="${r.estado==="INOPERATIVO"?"state-inoperativo":r.estado==="OPERATIVO CON OBSERVACIÓN"?"state-observacion":"state-operativo"}">${esc(r.estado||"N.A.")}</span></span>
     </div></div><div class="small">${esc(r.turno||"")}</div></div>
     <p><b>Tiempo:</b> ${esc(r.inicio||"--")} – ${esc(r.fin||"--")} &nbsp; <b>Intervención:</b> ${esc(r.tiempoIntervencion||"N.A.")}</p>
     <p><b>Demoras:</b> ${esc(r.demora||"N.A.")}</p>
@@ -503,8 +626,9 @@ function renderRecords(){
 
 function csvEscape(v){return `"${String(v??"").replace(/"/g,'""')}"`}
 function exportCSV(){
-  const rows=[["Fecha del reporte","Turno","Código","Tipo","Estado","Inicio","Fin","Tiempo de intervención","Demoras","Actividad","Técnicos","Observaciones","Comentario fotografía"]];
-  data.records.forEach(r=>rows.push([r.fechaReporte,r.turno,r.codigo,r.tipo,r.estado,r.inicio,r.fin,r.tiempoIntervencion,r.demora,r.actividad,r.tecnicos,r.observaciones,r.photoComment]));
+  const rows=[["Fecha del turno","Turno","Supervisor","Código","Tipo","Estado","Inicio","Fin","Tiempo de intervención","Demoras","Actividad","Técnicos","Observaciones","Comentario fotografía"]];
+  const rowsData=shift?data.records.filter(r=>(r.turnoKey||`${r.fechaReporte||""}|${r.turno||""}`)===shiftKeyValue()):[];
+  rowsData.forEach(r=>rows.push([r.fechaReporte,r.turno,r.supervisor||shift?.supervisor||"",r.codigo,r.tipo,r.estado,r.inicio,r.fin,r.tiempoIntervencion,r.demora,r.actividad,r.tecnicos,r.observaciones,r.photoComment]));
   const blob=new Blob(["\ufeff"+rows.map(row=>row.map(csvEscape).join(";")).join("\n")],{type:"text/csv;charset=utf-8"});
   downloadBlob(blob,"reporte-diario.csv")
 }
@@ -512,7 +636,14 @@ function exportJSON(){downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:
 function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 
 const annotCanvas=el("annotCanvas");annotCanvas.addEventListener("pointerdown",pointerDown);annotCanvas.addEventListener("pointermove",pointerMove);annotCanvas.addEventListener("pointerup",pointerUp);annotCanvas.addEventListener("pointercancel",pointerUp);
-renderEquipmentCodes(); renderRecords(); setAutomaticReportDate();
+renderEquipmentCodes(); 
+el("turnFecha").value=localDateValue();
+if(shift){
+  el("turnFecha").value=shift.fecha;
+  el("turnoAdmin").value=shift.turno;
+  el("supervisorAdmin").value=shift.supervisor||"";
+}
+updateShiftUI();
 </script>
 </body>
 </html>
