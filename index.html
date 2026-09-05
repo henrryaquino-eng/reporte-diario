@@ -318,6 +318,14 @@ button:active{transform:translateY(1px)}
 
 <script>
 const KEY="reporte-diario-v1";
+async function probarSupabase(){
+  const { data, error } = await sb.auth.getSession();
+  if(error){
+    console.error("Supabase:", error);
+    return;
+  }
+  console.log("Supabase conectado:", data.session ? "Sesión activa" : "Sin sesión");
+}
 const SHIFT_KEY="reporte-diario-turno-v1";
 const ADMIN_PIN="1234";
 let data=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
