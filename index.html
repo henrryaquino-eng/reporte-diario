@@ -129,6 +129,14 @@ button:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
+<div id="authBox" style="padding:10px;margin:10px 0;border:1px solid #ccc;border-radius:10px">
+  <strong>Acceso</strong>
+  <input id="authEmail" type="email" placeholder="Correo" style="display:block;width:100%;margin-top:6px;padding:8px">
+  <input id="authPassword" type="password" placeholder="Contraseña" style="display:block;width:100%;margin-top:6px;padding:8px">
+  <button type="button" onclick="iniciarSesion()" style="margin-top:6px">Iniciar sesión</button>
+  <button type="button" onclick="cerrarSesion()" style="margin-top:6px">Cerrar sesión</button>
+  <span id="authStatus" style="display:block;margin-top:6px"></span>
+</div>
 <header>
   <h1>Reporte Diario de Mantenimiento</h1>
   <p>V15 — control de turnos y reporte diario</p>
@@ -326,9 +334,47 @@ async function probarSupabase(){
   }
   console.log("Supabase conectado:", data.session ? "Sesión activa" : "Sin sesión");
 }
+async function iniciarSesion(){
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const status=document.getElementById("authStatus");
+
+  if(!email || !password){
+    status.textContent="Ingresa correo y contraseña.";
+    return;
+  }
+
+  status.textContent="Iniciando sesión...";
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    console.error("Supabase:", error);
+    status.textContent="Error: "+error.message;
+    return;
+  }
+
+  status.textContent="Sesión activa: "+data.user.email;
+}
+
+async function cerrarSesion(){
+  const { error } = await sb.auth.signOut();
+  const status=document.getElementById("authStatus");
+
+  if(error){
+    console.error("Supabase:", error);
+    status.textContent="Error al cerrar sesión.";
+    return;
+  }
+
+  status.textContent="Sesión cerrada.";
+}
 const SHIFT_KEY="reporte-diario-turno-v1";
 const ADMIN_PIN="1234";
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
+let datar=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
 if(!Array.isArray(data.records))data={records:[]};
 let shift=JSON.parse(localStorage.getItem(SHIFT_KEY)||"null")||null;
 let annotatedPhotoData="";
