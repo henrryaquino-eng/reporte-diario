@@ -374,7 +374,7 @@ async function cerrarSesion(){
 }
 const SHIFT_KEY="reporte-diario-turno-v1";
 const ADMIN_PIN="1234";
-let datar=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{records:[]};
 if(!Array.isArray(data.records))data={records:[]};
 let shift=JSON.parse(localStorage.getItem(SHIFT_KEY)||"null")||null;
 let annotatedPhotoData="";
